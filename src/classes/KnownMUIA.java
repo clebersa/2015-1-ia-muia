@@ -47,7 +47,7 @@ public class KnownMUIA implements Observer, Observable {
 		}
 		
 		if( operation == true ) {
-			this.notifyApplicationAdd( application );
+			this.notifyApplicationAddition( application );
 		}
 		
 		return operation;
@@ -88,11 +88,11 @@ public class KnownMUIA implements Observer, Observable {
 	}
 
 	@Override
-	public void notifyApplicationAdd(Application application) {
+	public void notifyApplicationAddition(Application application) {
 		Iterator<Observer> iterator = this.observers.iterator();
 		while( iterator.hasNext() ) {
 			Observer observer = iterator.next();
-			observer.updateAddApplication( application );
+			observer.updateApplicationAddition( application );
 		}
 	}
 
@@ -101,17 +101,17 @@ public class KnownMUIA implements Observer, Observable {
 		Iterator<Observer> iterator = this.observers.iterator();
 		while( iterator.hasNext() ) {
 			Observer observer = iterator.next();
-			observer.updateRemoveApplication( application );
+			observer.updateApplicationRemoval( application );
 		}
 	}
 
 	@Override
-	public void updateAddApplication(Application application) {
+	public void updateApplicationAddition(Application application) {
 		this.applications.add( application );
 	}
 
 	@Override
-	public void updateRemoveApplication(Application application) {
+	public void updateApplicationRemoval(Application application) {
 		this.applications.remove( application );
 	}
 	

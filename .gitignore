@@ -2,3 +2,6 @@
 /.settings/
 .classpath
 .project
+/nbproject/
+build.xml
+manifest.mf

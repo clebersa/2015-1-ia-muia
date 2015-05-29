@@ -30,7 +30,7 @@ public interface Observable {
 	 * Method to notify the observers that was added a new application in the observable object.
 	 * @param application - {@link classes.Application} added in the observable object.
 	 */
-	public void notifyApplicationAdd( Application application );
+	public void notifyApplicationAddition( Application application );
 	
 	/**
 	 * Method to notify the observers that an application was removed from the observable object.
