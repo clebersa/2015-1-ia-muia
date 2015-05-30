@@ -1,0 +1,10 @@
+Construção I
+	- Definir canais que serão instanciados na inicialização do MUIA
+	- Definir o padrão (formato) da serialização dos pacotes
+	- Diagrama de sequência
+	
+
+Construção II
+	- Filtros
+	- Banco de dados
+	- Autenticação segura
