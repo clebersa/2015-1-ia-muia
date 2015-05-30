@@ -1,9 +1,18 @@
 package main;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
 import classes.Channel;
-import classes.KnownMUIA;
+import classes.Client;
+import classes.MUIA;
 
 /**
  * Main class of MUIA.
@@ -11,19 +20,24 @@ import classes.KnownMUIA;
  * @since 28/05/2015
  */
 public class Main {
-	private static KnownMUIA self;
-	private static ArrayList<Channel> activeChannels;
+	private static MUIA self;
+	private static Registry registry;
 	
-	public static void main(String[] args) {
-		Main.self = new KnownMUIA();
-		Main.activeChannels = new ArrayList<Channel>();
+	public static void main(String[] args) throws InterruptedException {
+		try {
+			Main.registry = LocateRegistry.createRegistry( 2001 );
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		
+		Main.self = new MUIA( false );
 	}
-
-	public static KnownMUIA getSelf() {
+	
+	public static MUIA getSelf() {
 		return Main.self;
 	}
 	
-	public static ArrayList<Channel> getActiveChannels() {
-		return Main.activeChannels;
+	public static Registry getRegistry() {
+		return Main.registry;
 	}
 }
