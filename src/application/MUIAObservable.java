@@ -1,13 +1,12 @@
-package interfaces;
+package application;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import classes.Client;
 
 /**
  * Interface to be implemented from Objects that needs to notify addition and removal of applications to the registered
- * {@link interfaces.MUIAObserver}.
+ * {@link application.MUIAObserver}.
  * @author Bruno Soares da Silva
  * @since 28/05/2015
  */
@@ -15,7 +14,7 @@ public interface MUIAObservable extends Remote {
 	/**
 	 * Method to add a new observer thats can receive notifications of application addition or removal in the 
 	 * observable object.
-	 * @param observer - {@link interfaces.MUIAObserver} to be added in the observers list.
+	 * @param observer - {@link application.MUIAObserver} to be added in the observers list.
 	 * @return Boolean true if the observer was successfully added in the observers list or Boolean false when
 	 * not.
 	 */
@@ -24,7 +23,7 @@ public interface MUIAObservable extends Remote {
 	/**
 	 * Method to remove a observer from the list of observers that wants to receive notifications of application
 	 * addition or removal in the observable object.
-	 * @param observer - {@link interfaces.MUIAObserver} to be removed from the observers list.
+	 * @param observer - {@link application.MUIAObserver} to be removed from the observers list.
 	 * @return Boolean true if the observer was successfully removed from the observers list or Boolean false when not.
 	 */
 	public Boolean removeObserver( MUIAObserver observer ) throws RemoteException;

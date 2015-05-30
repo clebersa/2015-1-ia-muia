@@ -1,4 +1,4 @@
-package classes;
+package sending;
 
 /**
  * Class to provide a logical channel to transport the messages.

@@ -1,4 +1,4 @@
-package classes;
+package application;
 
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -10,9 +10,10 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import main.Main;
-import interfaces.MUIAObservable;
-import interfaces.MUIAObserver;
+import application.Main;
+import application.MUIAObservable;
+import application.MUIAObserver;
+import sending.Channel;
 
 /**
  * Class of a MUIA in the MUIA server application.
@@ -80,7 +81,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 	/**
 	 * Method to add (register) a application in the MUIA instance.
 	 * If the addition occurs smoothly, the observers are updated.
-	 * @param application - {@link classes.Application} to be registered in the MUIA instance.
+	 * @param application - {@link application.Application} to be registered in the MUIA instance.
 	 * @return Boolean true if the application was successfully added in the MUIA instance or false if the application
 	 * is already contained in the MUIA instance or the addition operation have a error.
 	 */
@@ -101,7 +102,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 	/**
 	 * Method to remove (unregister) a application in the MUIA instance.
 	 * If the removal occours smoothly, the observers are updated.
-	 * @param application - {@link classes.Application} to be removed in the MUIA instance.
+	 * @param application - {@link application.Application} to be removed in the MUIA instance.
 	 * @return Boolean true if the application was successfully removed from the MUIA instance or false if the
 	 * application doesn't exists in the MUIA instance or the removal operation have a error.
 	 */

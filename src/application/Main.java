@@ -1,4 +1,4 @@
-package main;
+package application;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,9 +10,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 
-import classes.Channel;
-import classes.Client;
-import classes.MUIA;
+import sending.Channel;
 
 /**
  * Main class of MUIA.

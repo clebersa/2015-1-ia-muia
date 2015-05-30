@@ -1,4 +1,4 @@
-package classes;
+package application;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
