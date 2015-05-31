@@ -1,0 +1,28 @@
+[INFO] Logger.<init> - Logger configuration loaded.
+[INFO] Logger.<init> - Log file name = texto.log
+[INFO] Logger.<init> - Log level = 3
+[INFO] Test.main - cleber info
+[WARN] Test.main - cleber warning
+[ERROR] Test.main - cleber error
+
+
+
+[ERROR] Test.main - cleber error
+
+
+[WARN] Test.main - cleber warning
+[ERROR] Test.main - cleber error
+
+[INFO] Logger.<init> - Logger configuration loaded.
+[INFO] Logger.<init> - Log file name = texto.log
+[INFO] Logger.<init> - Log level = 3
+[INFO] Test.main - cleber info
+[WARN] Test.main - cleber warning
+[ERROR] Test.main - cleber error
+[INFO] Logger.<init> - Logger configuration loaded.
+[INFO] Logger.<init> - Log file name = texto.log
+[INFO] Logger.<init> - Log level = 4
+[DEBUG] Test.main - cleber debug
+[INFO] Test.main - cleber info
+[WARN] Test.main - cleber warning
+[ERROR] Test.main - cleber error

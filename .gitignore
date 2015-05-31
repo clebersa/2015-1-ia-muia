@@ -7,3 +7,5 @@ build.xml
 manifest.mf
 
 doc/diagramas-muia.asta.bak
+/build/
+/dist/
