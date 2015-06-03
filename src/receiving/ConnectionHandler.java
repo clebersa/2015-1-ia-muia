@@ -46,10 +46,10 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 
 			String line;
 			while ((line = in.readLine()) != null) {
-				Logger.debug("Line: \"" + line + "\"");
+				Logger.debug("Message Line: \"" + line + "\"");
 				socketData += line;
-				if("".equals(line)) break;
 			}
+			connection.shutdownInput();
 			
 			if ("".equals(socketData)) {
 				Logger.debug("Stop signal received!");

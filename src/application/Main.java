@@ -9,6 +9,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import receiving.ConnectionManager;
 
 import sending.Channel;
 
@@ -22,6 +23,18 @@ public class Main {
 	private static Registry registry;
 	
 	public static void main(String[] args) throws InterruptedException {
+		try{
+			ConnectionManager connectionManager = new ConnectionManager();
+			Thread cmThread = new Thread(connectionManager);
+			cmThread.start();
+			Thread.sleep(5000);
+			connectionManager.stop();
+			
+			cmThread.join();
+			return;
+		}catch(Exception e){
+			System.out.println("Error: "+ e.getMessage());
+		}
 		try {
 			Main.registry = LocateRegistry.createRegistry( 2001 );
 		} catch (RemoteException e) {

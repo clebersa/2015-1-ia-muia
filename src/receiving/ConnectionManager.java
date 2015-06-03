@@ -13,10 +13,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Observer;
-import java.util.logging.Level;
 
 /**
  * Gerenciador de conexões responsável pore receber conexões de aplicações
@@ -59,11 +56,16 @@ public class ConnectionManager implements Runnable, ConnectionHandlerObserver {
 					new InputStreamReader(socket.getInputStream()));
 			Logger.info("Sending stop signal to the last connection of the "
 					+ "ConnectionManager...");
-			out.println("dskh"+ System.lineSeparator());
+			out.println();
+			socket.shutdownOutput();
 			
 			Logger.debug("Waiting status...");
-			String result = in.readLine();
-			Logger.debug("Line: \"" + result + "\"");
+			String result = "", line;
+			while ((line = in.readLine()) != null) {
+				Logger.debug("Result Line: \"" + line + "\"");
+				result += line;
+			}
+			
 			
 			Logger.info("Stop signal result of the last ConnectionHandler: " 
 					+ result);
