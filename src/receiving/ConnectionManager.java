@@ -20,7 +20,7 @@ import java.util.HashMap;
  * clientes repassar cada conexão para uma instância de
  * {@link ConnectionHandler}.
  *
- * @author cleber <cleber.93cd@gmail.com>
+ * @author Cleber Alcântara <cleber.93cd@gmail.com>
  */
 public class ConnectionManager implements Runnable, ConnectionHandlerObserver {
 

@@ -5,16 +5,20 @@
  */
 package receiving;
 
+import com.google.gson.Gson;
 import common.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import operation.Operation;
+import operation.OperationFactory;
+import packets.Packet;
 
 /**
  *
- * @author cleber
+ * @author Cleber Alcântara <cleber.93cd@gmail.com>
  */
 public class ConnectionHandler implements Runnable, ConnectionHandlerObservable {
 
@@ -55,7 +59,16 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 				Logger.debug("Stop signal received!");
 				result = 0;
 			} else {
-				//Build packet...
+				//TODO: Build packet...
+				
+				Gson gson = new Gson();
+				Packet packet = gson.fromJson(line, Packet.class);
+				
+				//TODO: Authenticate the application
+				
+				Operation operation = OperationFactory.createOperation(
+						packet.getMessagePacket());
+				result = operation.exec();
 			}
 			
 			out.println(result);
