@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -30,11 +31,20 @@ public class ConnectionManager implements Runnable, ConnectionHandlerObserver {
 
 	public ConnectionManager() throws Exception {
 		try {
-			String port = Configuration.get(Configuration.CONNECTION_SERVER_PORT);
-			if (port == null) {
+			String portString = Configuration.get(
+					Configuration.CONNECTION_SERVER_PORT);
+			if (portString == null) {
 				throw new IllegalArgumentException("Port not defined.");
 			}
-			serverSocket = new ServerSocket(Integer.parseInt(port));
+			
+			String ip = Configuration.get(Configuration.CONNECTION_SERVER_IP);
+			if (ip == null) {
+				throw new IllegalArgumentException("IP address not defined.");
+			}
+			
+			serverSocket = new ServerSocket();
+			serverSocket.bind(new InetSocketAddress(ip, 
+					Integer.parseInt(portString)));
 
 			activeConnections = new HashMap<>();
 		} catch (IllegalArgumentException | IOException ex) {

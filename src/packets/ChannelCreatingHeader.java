@@ -1,5 +1,10 @@
 package packets;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import java.lang.reflect.Type;
+
 /**
  *
  * @author Cleber Alcântara <cleber.93cd@gmail.com>
@@ -19,6 +24,9 @@ public class ChannelCreatingHeader extends ChannelingHeader {
 		this.maxRetries = maxRetries;
 		this.retryInterval = retryInterval;
 		this.timeout = timeout;
+	}
+
+	public ChannelCreatingHeader() {
 	}
 
 	public String getDescription() {
@@ -59,5 +67,11 @@ public class ChannelCreatingHeader extends ChannelingHeader {
 
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
+	}
+
+	@Override
+	public MessageHeader deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+		//TODO
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 }

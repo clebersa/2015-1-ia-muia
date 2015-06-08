@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Abstract class to represent a application in the MUIA. This class needs to
@@ -20,6 +21,12 @@ public abstract class Application implements Serializable {
 	protected String name;
 	protected InetAddress address;
 	protected Integer port;
+
+	public Application(String name, String address, Integer port) throws UnknownHostException {
+		this.name = name;
+		this.address = InetAddress.getByName(address);
+		this.port = port;
+	}
 
 	public String getName() {
 		return name;
@@ -43,6 +50,12 @@ public abstract class Application implements Serializable {
 
 	public void setPort(Integer port) {
 		this.port = port;
+	}
+
+	@Override
+	public String toString() {
+		return "Application{name=" + name + ", address=" 
+				+ address.getHostAddress() + ", port=" + port + "}";
 	}
 	
 	public static byte[] serialize( Application application ) {

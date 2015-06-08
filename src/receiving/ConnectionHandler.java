@@ -6,6 +6,11 @@
 package receiving;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import common.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +19,15 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import operation.Operation;
 import operation.OperationFactory;
+import packets.ChannelCreatingHeader;
+import packets.ChannelsGettingHeader;
+import packets.ConnectionHeader;
+import packets.MessageData;
+import packets.MessagePacket;
+import packets.MessagingHeader;
 import packets.Packet;
+import packets.RegistrationHeader;
+import packets.SubscribeHeader;
 
 /**
  *
@@ -54,25 +67,54 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 				socketData += line;
 			}
 			connection.shutdownInput();
-			
+
 			if ("".equals(socketData)) {
 				Logger.debug("Stop signal received!");
 				result = 0;
 			} else {
-				//TODO: Build packet...
-				
-				Gson gson = new Gson();
-				Packet packet = gson.fromJson(line, Packet.class);
-				
-				//TODO: Authenticate the application
-				
-				Operation operation = OperationFactory.createOperation(
-						packet.getMessagePacket());
-				result = operation.exec();
+				Logger.debug("JSON Message received: " + socketData);
+				try {
+					Gson gson = new GsonBuilder()
+							.registerTypeAdapter(Packet.class,
+									new Packet())
+							.registerTypeAdapter(ConnectionHeader.class,
+									new ConnectionHeader())
+							.registerTypeAdapter(MessagePacket.class,
+									new MessagePacket())
+							.registerTypeAdapter(MessagingHeader.class,
+									new MessagingHeader())
+							.registerTypeAdapter(RegistrationHeader.class,
+									new RegistrationHeader())
+							.registerTypeAdapter(ChannelsGettingHeader.class,
+									new ChannelsGettingHeader())
+							.registerTypeAdapter(ChannelCreatingHeader.class,
+									new ChannelCreatingHeader())
+							.registerTypeAdapter(SubscribeHeader.class,
+									new SubscribeHeader())
+							.registerTypeAdapter(MessageData.class,
+									new MessageData())
+							.create();
+					Packet packet = gson.fromJson(socketData,
+							Packet.class);
+
+					Logger.debug(packet.toString());
+
+					//TODO: Authenticate the application
+					
+					Operation operation = OperationFactory.createOperation(
+							packet.getMessagePacket());
+					result = operation.exec();
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					Logger.error("Unable to parse the element. Error: "
+							+ ex.getLocalizedMessage());
+					result = 1;
+				}
 			}
-			
+
 			out.println(result);
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			Logger.error("Unable to receive the socket data! Error: "
 					+ ex.getMessage());
 			result = 10;

@@ -1,6 +1,12 @@
 package operation;
 
+import application.Application;
+import application.Client;
+import application.MUIA;
+import application.Main;
+import common.Logger;
 import packets.MessagePacket;
+import packets.RegistrationHeader;
 
 /**
  *
@@ -14,7 +20,15 @@ class Registration extends Operation {
 
 	@Override
 	public int exec() {
-		//TODO
-		return 0;
+		Logger.debug("Running registration operation...");
+		MUIA muia = Main.getSelf();
+		Client client = ((RegistrationHeader)messagePacket.getMessageHeader()).getClient();
+		int result;
+		if(muia.addClient(client))
+			result = 0;
+		else
+			result = 1;
+		Logger.debug("Registration operation result: " + result);
+		return result;
 	}
 }

@@ -19,7 +19,12 @@ public class Configuration {
 
 	private static final String configFileName = "common/muia.properties";
 
+	public static final String MUIA_HOST_NAME = "muia_host_name";
+	public static final String MUIA_HOST_IP = "muia_host_ip";
+	public static final String MUIA_HOST_PORT = "muia_host_port";
+	
 	public static final String CONNECTION_SERVER_PORT = "connection_server_port";
+	public static final String CONNECTION_SERVER_IP = "connection_server_ip";
 	public static final String LOG_LEVEL = "log_level";
 	public static final String LOG_FILE = "log_file";
 
