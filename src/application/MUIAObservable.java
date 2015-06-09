@@ -12,6 +12,13 @@ import java.rmi.RemoteException;
  */
 public interface MUIAObservable extends Remote {
 	/**
+	 * Method to verify if the observable is alive.
+	 * @return Boolean true if the observable is alive.
+	 * @throws RemoteException if the observable is not alive.
+	 */
+	public Boolean isAlive() throws RemoteException;
+	
+	/**
 	 * Method to add a new observer thats can receive notifications of application addition or removal in the 
 	 * observable object.
 	 * @param observer - {@link application.MUIAObserver} to be added in the observers list.

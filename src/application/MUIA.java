@@ -24,17 +24,20 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 	private static final long serialVersionUID = -7028287914779865311L;
 	private Boolean copy;
 	private Integer registryPort;
+	private Boolean alive = true;
+	private Remote selfRemoteReference;
+	private MUIAObservable originalMUIA;
 
 	/**
 	 * List of observers of MUIA instance.
 	 */
 	private ArrayList<MUIAObserver> observers = new ArrayList<MUIAObserver>();
-	private ArrayList<Channel> channels = new ArrayList<Channel>();
 	private ArrayList<MUIA> knownMUIAs = new ArrayList<MUIA>();
 	/**
 	 * List of clients registered in the MUIA instance.
 	 */
 	private ArrayList<Client> clients = new ArrayList<Client>();
+	private ArrayList<Channel> channels = new ArrayList<Channel>();
 
 	/**
 	 * Constructor method. Initialize the variables.
@@ -50,7 +53,12 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 		this.copy = isCopy;
 		
 		try {
-			Remote selfRemoteReference = UnicastRemoteObject.exportObject(this, 0);
+			selfRemoteReference = UnicastRemoteObject.exportObject(this, 0);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		
+		try {
 			Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
 			
 			if( !isCopy ) {
@@ -58,8 +66,8 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 				registry.bind(this.name, ((MUIAObservable)selfRemoteReference));
 			} else {
 				Logger.info("Subscribing local MUIA copy {" + this + "} in the observer list of the real MUIA...");
-				MUIAObservable muiaObervable = (MUIAObservable) registry.lookup(this.name);
-				muiaObervable.addObserver(((MUIAObserver) selfRemoteReference));
+				originalMUIA = (MUIAObservable) registry.lookup(this.name);
+				originalMUIA.addObserver(((MUIAObserver) selfRemoteReference));
 			}
 			Logger.info("Done!");
 		} catch (Exception e) {
@@ -70,6 +78,37 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 		}
 	}
 
+	public void keepAlive() {
+		Boolean isAlive = false;
+		try {
+			isAlive = originalMUIA.isAlive();
+		} catch (Exception e) {
+			isAlive = false;
+		}
+		
+		if( !isAlive ) {
+			if( this.alive == true ) {
+				this.alive = false;
+				this.originalMUIA = null;
+				this.channels.clear();
+				this.clients.clear();
+			}
+		} else {
+			if( this.alive == false ) {
+				syncronizeOriginalMuia();
+			}
+		}
+	}
+	
+	public void syncronizeOriginalMuia() {
+		try {
+			Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
+			this.originalMUIA = (MUIAObservable) registry.lookup(this.name);
+			this.originalMUIA.addObserver(((MUIAObserver) selfRemoteReference));
+			this.alive = true;
+		} catch (Exception e) {}
+	}
+	
 	public Client getClientReference( String client ) {
 		// Local search
 		Iterator<Client> cIterator = clients.iterator();
@@ -85,10 +124,15 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 		Client clientReference;
 		while( mIterator.hasNext() ) {
 			MUIA muia = mIterator.next();
+			if( !muia.isAlive() ) {
+				continue;
+			}
+			
 			clientReference = muia.getClientReference(client);
 			if (clientReference != null) {
 				return clientReference;
 			}
+			
 		}
 		
 		return null;
@@ -98,6 +142,10 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 		Iterator<MUIA> iterator = knownMUIAs.iterator();
 		while( iterator.hasNext() ) {
 			MUIA muia = iterator.next();
+			if( !muia.isAlive() ) {
+				continue;
+			}
+			
 			if (muia.getName().equals(muiaName)) {
 				return muia;
 			}
@@ -158,6 +206,11 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 		return super.toString() + "[type = muia]";
 	}
 
+	@Override
+	public Boolean isAlive() {
+		return this.alive;
+	}
+	
 	@Override
 	public Boolean addObserver(MUIAObserver observer) {
 		System.out.println("Adicionando observer...");
