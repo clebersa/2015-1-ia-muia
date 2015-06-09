@@ -32,12 +32,12 @@ public class ConnectionManager implements Runnable, ConnectionHandlerObserver {
 	public ConnectionManager() throws Exception {
 		try {
 			String portString = Configuration.get(
-					Configuration.CONNECTION_SERVER_PORT);
+					Configuration.MUIA_HOST_PORT);
 			if (portString == null) {
 				throw new IllegalArgumentException("Port not defined.");
 			}
 			
-			String ip = Configuration.get(Configuration.CONNECTION_SERVER_IP);
+			String ip = Configuration.get(Configuration.MUIA_HOST_IP);
 			if (ip == null) {
 				throw new IllegalArgumentException("IP address not defined.");
 			}
@@ -60,7 +60,7 @@ public class ConnectionManager implements Runnable, ConnectionHandlerObserver {
 		BufferedReader in = null;
 		try {
 			Socket socket = new Socket(serverSocket.getInetAddress(), Integer.parseInt(
-					Configuration.get(Configuration.CONNECTION_SERVER_PORT)));
+					Configuration.get(Configuration.MUIA_HOST_PORT)));
 			out = new PrintWriter(socket.getOutputStream(), true);
 			in = new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));

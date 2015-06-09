@@ -1,7 +1,7 @@
 package application;
 
-import java.io.Serializable;
 import java.net.UnknownHostException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -20,34 +20,21 @@ import sending.Channel;
  * @author Bruno Soares da Silva
  * @since 28/05/2015
  */
-public class MUIA extends Application implements MUIAObserver, MUIAObservable, Serializable {
-
+public class MUIA extends Application implements MUIAObserver, MUIAObservable {
 	private static final long serialVersionUID = -7028287914779865311L;
-	private Boolean isRemote;
+	private Boolean copy;
 	private Integer registryPort;
 
 	/**
 	 * List of observers of MUIA instance.
 	 */
-	private ArrayList<MUIAObserver> observers;
-
-	private ArrayList<Channel> channels;
-	private ArrayList<MUIA> knownMUIAs;
+	private ArrayList<MUIAObserver> observers = new ArrayList<MUIAObserver>();
+	private ArrayList<Channel> channels = new ArrayList<Channel>();
+	private ArrayList<MUIA> knownMUIAs = new ArrayList<MUIA>();
 	/**
 	 * List of clients registered in the MUIA instance.
 	 */
-	private ArrayList<Client> clients;
-	
-	/**
-	 * Constructor method. Initialize the variables.
-	 * 
-	 * @throws java.net.UnknownHostException When the address parameter is not 
-	 * found.
-	 */
-	public MUIA(String name, String address, int port) 
-			throws UnknownHostException {
-		this(name, address, port, false);
-	}
+	private ArrayList<Client> clients = new ArrayList<Client>();
 
 	/**
 	 * Constructor method. Initialize the variables.
@@ -55,45 +42,67 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 	 * @throws java.net.UnknownHostException When the address parameter is not 
 	 * found.
 	 */
-	public MUIA(String name, String address, int port, Boolean isRemote)
-			throws UnknownHostException {
+	public MUIA(String name, String address, Integer port, Integer registryPort, Boolean isCopy)
+			throws UnknownHostException, UnableToCreateMUIAException {
 		super(name, address, port);
 		
-		this.registryPort = 2002;
-
-		this.isRemote = isRemote;
-		this.observers = new ArrayList<>();
-		this.clients = new ArrayList<>();
-
-		if (!isRemote) {
-			try {
-				MUIAObservable muiaObservable = (MUIAObservable) UnicastRemoteObject.exportObject(this, 0);
-				Main.getRegistry().bind(this.name, muiaObservable);
-			} catch (Exception e) {
-				Logger.error("Unable to export or bind the MUIA. Error: " 
-						+ e.getMessage());
-			}
-		} else {
-			try {
-				MUIAObserver muiaObserver = (MUIAObserver) UnicastRemoteObject.exportObject(this, 0);
-
-				Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
+		this.registryPort = registryPort;
+		this.copy = isCopy;
+		
+		try {
+			Remote selfRemoteReference = UnicastRemoteObject.exportObject(this, 0);
+			Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
+			
+			if( !isCopy ) {
+				Logger.info("Registering MUIA host in the registry...");
+				registry.bind(this.name, ((MUIAObservable)selfRemoteReference));
+			} else {
+				Logger.info("Subscribing local MUIA copy {" + this + "} in the observer list of the real MUIA...");
 				MUIAObservable muiaObervable = (MUIAObservable) registry.lookup(this.name);
-				muiaObervable.addObserver(muiaObserver);
-			} catch (Exception e) {
-				System.out.println("Error ao se inscrever como observador do MUIA original: " + e.getMessage());
+				muiaObervable.addObserver(((MUIAObserver) selfRemoteReference));
 			}
+			Logger.info("Done!");
+		} catch (Exception e) {
+			String errorMessage = (!isCopy) ? "Unable to register MUIA host in the registry" : 
+				"Unable to subscribe the MUIA copy {" + this + "} like a observer of the real MUIA";
+			Logger.error(errorMessage + " Error: " + e.getMessage());
+			throw new UnableToCreateMUIAException();
 		}
 	}
 
+	public Client getClientReference( String client ) {
+		// Local search
+		Iterator<Client> cIterator = clients.iterator();
+		while( cIterator.hasNext() ) {
+			Client clientReference = cIterator.next();
+			if( clientReference.getName().equals(client) ) {
+				return clientReference;
+			}
+		}
+		
+		// Known MUIAs search
+		Iterator<MUIA> mIterator = knownMUIAs.iterator();
+		Client clientReference;
+		while( mIterator.hasNext() ) {
+			MUIA muia = mIterator.next();
+			clientReference = muia.getClientReference(client);
+			if (clientReference != null) {
+				return clientReference;
+			}
+		}
+		
+		return null;
+	}
+	
 	public MUIA getMUIAReference(String muiaName) {
-		for (MUIA muia : knownMUIAs) {
+		Iterator<MUIA> iterator = knownMUIAs.iterator();
+		while( iterator.hasNext() ) {
+			MUIA muia = iterator.next();
 			if (muia.getName().equals(muiaName)) {
 				return muia;
 			}
 		}
 		return null;
-
 	}
 
 	/**
@@ -139,7 +148,11 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 
 		return operation;
 	}
-
+	
+	public Boolean isCopy() {
+		return this.copy;
+	}
+	
 	@Override
 	public String toString() {
 		return super.toString() + "[type = muia]";
@@ -163,7 +176,8 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 				try {
 					observer.updateClientAddition(serializedClient);
 				} catch (RemoteException e) {
-					System.out.println(this.getName() + " - Não foi atualizar o observador " + e.getMessage());
+					Logger.warning( "Could not update client in the observer " + ((MUIA)observer).toString() +
+							" Error: " + e.getMessage() );
 				}
 			}
 		}
@@ -181,11 +195,13 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 		Iterator<MUIAObserver> iterator = this.observers.iterator();
 		while (iterator.hasNext()) {
 			MUIAObserver observer = iterator.next();
+			byte[] serializedClient = Application.serialize(client);
+			
 			try {
-				byte[] serializedClient = Application.serialize(client);
 				observer.updateClientAddition(serializedClient);
 			} catch (RemoteException e) {
-				System.out.println(this.getName() + " - Não foi possível notificar um observador: " + e.getMessage());
+				Logger.warning( "Could not update client in the observer " + ((MUIA)observer).toString() +
+						" Error: " + e.getMessage() );
 			}
 		}
 	}
@@ -195,11 +211,13 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 		Iterator<MUIAObserver> iterator = this.observers.iterator();
 		while (iterator.hasNext()) {
 			MUIAObserver observer = iterator.next();
+			byte[] serializedClient = Application.serialize(client);
+			
 			try {
-				byte[] serializedClient = Application.serialize(client);
 				observer.updateClientRemoval(serializedClient);
 			} catch (RemoteException e) {
-				System.out.println(this.getName() + " - Não foi possível notificar um observador: " + e.getMessage());
+				Logger.warning( "Could not update client in the observer " + ((MUIA)observer).toString() +
+						" Error: " + e.getMessage() );
 			}
 		}
 	}
@@ -212,7 +230,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 		Iterator<Client> it = this.clients.iterator();
 		while (it.hasNext()) {
 			Client hostedClient = it.next();
-			if (hostedClient.equals(client)) {
+			if (hostedClient.getName().equals(client.getName())) {
 				exists = true;
 				break;
 			}
@@ -227,5 +245,4 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, S
 	public void updateClientRemoval(byte[] client) {
 		this.clients.remove(client);
 	}
-
 }

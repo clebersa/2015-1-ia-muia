@@ -67,8 +67,8 @@ public class OperationTests {
 		BufferedReader in = null;
 		try {
 			Socket socket = new Socket(Configuration.get(
-					Configuration.CONNECTION_SERVER_IP), Integer.parseInt(
-							Configuration.get(Configuration.CONNECTION_SERVER_PORT)));
+					Configuration.MUIA_HOST_IP), Integer.parseInt(
+							Configuration.get(Configuration.MUIA_HOST_PORT)));
 			out = new PrintWriter(socket.getOutputStream(), true);
 			in = new BufferedReader(
 					new InputStreamReader(socket.getInputStream()));

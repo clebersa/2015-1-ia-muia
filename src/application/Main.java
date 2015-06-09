@@ -2,10 +2,12 @@ package application;
 
 import common.Configuration;
 import common.Logger;
+
 import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
 import receiving.ConnectionManager;
 
 /**
@@ -15,7 +17,6 @@ import receiving.ConnectionManager;
  */
 public class Main {
 	private static MUIA self;
-	private static Registry registry;
 	private static int secondsRunning = 30;
 	
 	public static void main(String[] args) throws InterruptedException {
@@ -23,16 +24,15 @@ public class Main {
 			ConnectionManager connectionManager = new ConnectionManager();
 			Thread cmThread = new Thread(connectionManager);
 			cmThread.start();
-			Thread.sleep(secondsRunning * 1000);
-			connectionManager.stop();
-			
-			cmThread.join();
-			return;
+			//Thread.sleep(secondsRunning * 1000);
+			//connectionManager.stop();
+			//cmThread.join();
 		}catch(Exception e){
 			System.out.println("Error: "+ e.getMessage());
 		}
+		
 		try {
-			Main.registry = LocateRegistry.createRegistry( 2001 );
+			LocateRegistry.createRegistry(Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)));
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -41,18 +41,18 @@ public class Main {
 			Main.self = new MUIA(Configuration.get(Configuration.MUIA_HOST_NAME),
 					Configuration.get(Configuration.MUIA_HOST_IP),
 					Integer.parseInt(Configuration.get(Configuration.MUIA_HOST_PORT)),
+					Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)),
 					false);
+			Logger.info("MUIA host initialized");
 		} catch (UnknownHostException ex) {
 			Logger.error("Unable to instantiate the host MUIA. Error: " 
 					+ ex.getMessage());
+		} catch (UnableToCreateMUIAException e) {
+			// Finish the system...
 		}
 	}
 	
 	public static MUIA getSelf() {
 		return self;
-	}
-	
-	public static Registry getRegistry() {
-		return registry;
 	}
 }
