@@ -9,7 +9,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import application.exceptions.UnableToCreateMUIAException;
 import application.exceptions.UnableToUpdateObserverException;
@@ -29,29 +28,67 @@ import sending.interfaces.ChannelObserver;
  * @since 28/05/2015
  */
 public class MUIA extends Application implements MUIAObserver, MUIAObservable, ChannelObserver {
+	/**
+	 * Unique serial long used to identify the class in the serialization and deserialization.
+	 */
 	private static final long serialVersionUID = -7028287914779865311L;
+	
+	/**
+	 * Number of port where the registry of the MUIA is running.
+	 */
 	private Integer registryPort;
+	
+	/**
+	 * Boolean to identify if the MUIA is a copy or not.
+	 */
 	private Boolean copy;
+	
+	/**
+	 * Boolean to identify if the MUIA is alive, i.e, if the MUIA is available and operational.
+	 */
 	private Boolean alive;
+	
+	/**
+	 * Remote reference of the MUIA
+	 */
 	private Remote selfRemoteReference;
+	
+	/**
+	 * Reference of the original MUIA, only used by copy MUIAs.
+	 */
 	private MUIAObservable originalMUIA;
 
 	/**
-	 * List of observers of MUIA instance.
+	 * List of observers of MUIA instance, only used by original MUIAs.
 	 */
 	private ArrayList<MUIAObserver> observers = new ArrayList<MUIAObserver>();
+	
+	/**
+	 * List of known MUIAs of original MUIA host, in practice, that knownMUIAs are copys of the original known MUIAs. 
+	 */
 	private ArrayList<MUIA> knownMUIAs = new ArrayList<MUIA>();
+	
 	/**
 	 * List of clients registered in the MUIA instance.
 	 */
 	private ArrayList<Client> clients = new ArrayList<Client>();
-	private ArrayList<Channel> channels = new ArrayList<Channel>();
-
+	
 	/**
-	 * Constructor method. Initialize the variables.
-	 * 
-	 * @throws java.net.UnknownHostException When the address parameter is not 
-	 * found.
+	 * List of active channels in the MUIA network, only used by original MUIAs.
+	 */
+	private ArrayList<Channel> channels = new ArrayList<Channel>();
+	
+	/**
+	 * Constructor method of the MUIA object. Initialize the variables.
+	 * If the MUIA initialized is a copy, start the MUIA Checker.
+	 * @param name - String containing the name of the MUIA.
+	 * @param address - String containing the IP address of the MUIA.
+	 * @param port - Integer containing the port where the MUIA is running.
+	 * @param registryPort - Integer containing the port of registry where the MUIA is binded.
+	 * @param isCopy - Boolean containing true if the MUIA is a copy or false if the MUIA is a original instance.
+	 * @throws UnknownHostException when the address parameter is not found.
+	 * @throws UnableToCreateMUIAException when is not possible to create the remote reference of MUIA or when have a
+	 * problem to register the original MUIA host in the registry.
 	 */
 	public MUIA(String name, String address, Integer port, Integer registryPort, Boolean isCopy)
 			throws UnknownHostException, UnableToCreateMUIAException {
@@ -86,7 +123,15 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			}
 		}
 	}
-
+	
+	/**
+	 * Verify if the connection with the original MUIA is alive.
+	 * This method can't be used by original MUIAs.
+	 * If the original MUIA connection is not alive and the last check is alive, the copy will set yourself to not
+	 * alive and release the original MUIA reference.
+	 * If the original MUIA connection is alive and the last check is not alive, the copy will synchronize with the
+	 * original MUIA.
+	 */
 	public void keepAlive() {
 		if( !isCopy() ) {
 			return;
@@ -99,10 +144,14 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			isAlive = false;
 		}
 		
-		if( !isAlive && this.alive == true ) {
-			this.alive = false;
-			this.originalMUIA = null;
-		} else if( isAlive && this.alive == false ) {
+		if( isAlive && alive == true ) {
+			return;
+		} else if( !isAlive && alive == true ) {
+			alive = false;
+			originalMUIA = null;
+		}
+		
+		if( alive == false && originalMUIA == null ) {
 			try {
 				synchronizeCopyToOriginalMUIA();
 			} catch (RemoteException | NotBoundException e) {
@@ -111,6 +160,13 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		}
 	}
 	
+	/**
+	 * Register the original MUIA host in your registry.
+	 * This method can't be used by copy MUIAs.
+	 * @throws RemoteException while binding original MUIA host in your registry.
+	 * @throws AlreadyBoundException when a application with the same name of the original MUIA host is registered in
+	 * the registry.
+	 */
 	public void registerMUIAHostInRegistry() throws RemoteException, AlreadyBoundException {
 		if( isCopy() ) {
 			return;
@@ -122,6 +178,14 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		alive = true;
 	}
 	
+	/**
+	 * Establish the connection of copy MUIA with your original MUIA and synchronize it by the subscription of the
+	 * copy in the list of observers of the original MUIA. 
+	 * This method can't be used by original MUIAs.
+	 * @throws RemoteException while getting the original MUIA registry, while getting original MUIA remote reference
+	 * in the registry or while adding the copy in the observer list of the original MUIA.
+	 * @throws NotBoundException when the original MUIA is not founded in the registry.
+	 */
 	public void synchronizeCopyToOriginalMUIA() throws RemoteException, NotBoundException {
 		if( !isCopy() ) {
 			return;
@@ -137,6 +201,12 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		alive = true;
 	}
 	
+	/**
+	 * Get the {@link application.Client} instance in the MUIA clients list or in your network based in a client name.
+	 * @param clientName - String containing the name of client to be searched.
+	 * @return {@link application.Client} instance of searched client name or {@value null} if have no client
+	 * registered with the specified client name in the MUIA network.
+	 */
 	public Client getClientReference( String clientName ) {
 		// Local search
 		for( Client client : clients ) {
@@ -161,23 +231,20 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		return null;
 	}
 	
+	/**
+	 * Get the {@link sending.Channel} instance in the MUIA channels list based in a channel id.
+	 * This method can't be used by copy MUIAs.
+	 * @param channelId - String containing the id of the channel to be searched.
+	 * @return {@link sending.Channel} instance of searched channel id or {@value null} if have no channel registered
+	 * with the specified id in the MUIA.
+	 */
 	public Channel getChannelReference( String channelId ) {
-		// Local search
-		for( Channel channel : channels ) {
-			if( channel.getId().equals(channelId) ) {
-				return channel;
-			}
+		if( isCopy() ) {
+			return null;
 		}
 		
-		// Known MUIAs search
-		Channel channel;
-		for( MUIA knownMUIA : knownMUIAs ) {
-			if( !knownMUIA.isAlive() ) {
-				continue;
-			}
-			
-			channel = knownMUIA.getChannelReference(channelId);
-			if (channel != null) {
+		for( Channel channel : channels ) {
+			if( channel.getId().equals(channelId) ) {
 				return channel;
 			}
 		}
@@ -186,17 +253,16 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 	
 	public MUIA getMUIAReference(String muiaName) {
-		Iterator<MUIA> iterator = knownMUIAs.iterator();
-		while( iterator.hasNext() ) {
-			MUIA muia = iterator.next();
-			if( !muia.isAlive() ) {
+		for( MUIA knownMUIA : knownMUIAs ) {
+			if( !knownMUIA.isAlive() ) {
 				continue;
 			}
 			
-			if (muia.getName().equals(muiaName)) {
-				return muia;
+			if (knownMUIA.getName().equals(muiaName)) {
+				return knownMUIA;
 			}
 		}
+		
 		return null;
 	}
 
