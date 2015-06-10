@@ -1,10 +1,5 @@
 package application;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -56,32 +51,5 @@ public abstract class Application implements Serializable {
 	public String toString() {
 		return "Application{name=" + name + ", address=" 
 				+ address.getHostAddress() + ", port=" + port + "}";
-	}
-	
-	public static byte[] serialize( Application application ) {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(os);
-			oos.writeObject( application );
-			os.close();
-		} catch( IOException e ) {
-			e.printStackTrace();
-		}
-		
-		return os.toByteArray();
-	}
-	
-	public static Application deserialize( byte[] serializedApplication ) {
-		ByteArrayInputStream in = new ByteArrayInputStream( serializedApplication );
-		ObjectInputStream is = null;
-		Application application = null;
-		try {
-			is = new ObjectInputStream(in);
-			application = (Application) is.readObject();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return application;
 	}
 }

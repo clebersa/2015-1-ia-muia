@@ -7,15 +7,16 @@ public class Client extends Application {
 	private MUIA host;
 
 	public Client(String name, String address, int port) throws UnknownHostException {
+		this(name, address, port, null);
+	}
+	
+	public Client(String name, String address, int port, MUIA host) throws UnknownHostException {
 		super(name, address, port);
+		this.host = host;
 	}
 
 	public MUIA getHost() {
 		return this.host;
-	}
-
-	public void setHost(MUIA host) {
-		this.host = host;
 	}
 
 	@Override

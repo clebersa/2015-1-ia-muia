@@ -1,5 +1,6 @@
 package application;
 
+import application.exceptions.UnableToCreateMUIAException;
 import common.Configuration;
 import common.Logger;
 
