@@ -12,8 +12,10 @@ import java.util.ArrayList;
 
 import application.exceptions.UnableToCreateMUIAException;
 import application.exceptions.UnableToUpdateObserverException;
-import application.interfaces.MUIAObservable;
-import application.interfaces.MUIAObserver;
+import application.interfaces.CopyMUIAObservable;
+import application.interfaces.CopyMUIAObserver;
+import application.interfaces.OriginalMUIAObservable;
+import application.interfaces.OriginalMUIAObserver;
 import common.Logger;
 import common.SerializableHandler;
 import sending.Channel;
@@ -27,7 +29,8 @@ import sending.interfaces.ChannelObserver;
  * @author Bruno Soares da Silva
  * @since 28/05/2015
  */
-public class MUIA extends Application implements MUIAObserver, MUIAObservable, ChannelObserver {
+public class MUIA extends Application implements CopyMUIAObserver, OriginalMUIAObserver, ChannelObserver,
+CopyMUIAObservable, OriginalMUIAObservable {
 	/**
 	 * Unique serial long used to identify the class in the serialization and deserialization.
 	 */
@@ -54,14 +57,19 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	private Remote selfRemoteReference;
 	
 	/**
-	 * Reference of the original MUIA, only used by copy MUIAs.
+	 * Remote Reference of the original MUIA, only used by copy MUIAs.
 	 */
-	private MUIAObservable originalMUIA;
+	private CopyMUIAObservable remoteOriginalMUIA;
 
 	/**
-	 * List of observers of MUIA instance, only used by original MUIAs.
+	 * List of Copy MUIA observers, only used by original MUIAs.
 	 */
-	private ArrayList<MUIAObserver> observers = new ArrayList<MUIAObserver>();
+	private ArrayList<CopyMUIAObserver> copyMUIAobservers = new ArrayList<CopyMUIAObserver>();
+	
+	/**
+	 * List of Original MUIA observers, only used by original MUIAs.
+	 */
+	private ArrayList<OriginalMUIAObserver> originalMUIAObservers = new ArrayList<OriginalMUIAObserver>();
 	
 	/**
 	 * List of known MUIAs of original MUIA host, in practice, that knownMUIAs are copys of the original known MUIAs. 
@@ -79,7 +87,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	private ArrayList<Channel> channels = new ArrayList<Channel>();
 	
 	/**
-	 * Constructor method of the MUIA object. Initialize the variables.
+	 * Creates a new instance of the MUIA class.
 	 * If the MUIA initialized is a copy, start the MUIA Checker.
 	 * @param name - String containing the name of the MUIA.
 	 * @param address - String containing the IP address of the MUIA.
@@ -125,7 +133,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 	
 	/**
-	 * Verify if the connection with the original MUIA is alive.
+	 * Verifies if the connection with the original MUIA is alive.
 	 * This method can't be used by original MUIAs.
 	 * If the original MUIA connection is not alive and the last check is alive, the copy will set yourself to not
 	 * alive and release the original MUIA reference.
@@ -139,7 +147,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		
 		Boolean isAlive;
 		try {
-			isAlive = originalMUIA.isAlive();
+			isAlive = remoteOriginalMUIA.isAlive();
 		} catch (Exception e) {
 			isAlive = false;
 		}
@@ -148,10 +156,10 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			return;
 		} else if( !isAlive && alive == true ) {
 			alive = false;
-			originalMUIA = null;
+			remoteOriginalMUIA = null;
 		}
 		
-		if( alive == false && originalMUIA == null ) {
+		if( alive == false && remoteOriginalMUIA == null ) {
 			try {
 				synchronizeCopyToOriginalMUIA();
 			} catch (RemoteException | NotBoundException e) {
@@ -161,7 +169,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 	
 	/**
-	 * Register the original MUIA host in your registry.
+	 * Registers the original MUIA host in your registry.
 	 * This method can't be used by copy MUIAs.
 	 * @throws RemoteException while binding original MUIA host in your registry.
 	 * @throws AlreadyBoundException when a application with the same name of the original MUIA host is registered in
@@ -174,12 +182,12 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		
 		Logger.info("Registering MUIA host in the registry...");
 		Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
-		registry.bind(this.name, ((MUIAObservable)selfRemoteReference));
+		registry.bind(this.name, ((CopyMUIAObservable)selfRemoteReference));
 		alive = true;
 	}
 	
 	/**
-	 * Establish the connection of copy MUIA with your original MUIA and synchronize it by the subscription of the
+	 * Establishes the connection of copy MUIA with your original MUIA and synchronize it by the subscription of the
 	 * copy in the list of observers of the original MUIA. 
 	 * This method can't be used by original MUIAs.
 	 * @throws RemoteException while getting the original MUIA registry, while getting original MUIA remote reference
@@ -196,13 +204,13 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		
 		Logger.info("Subscribing local MUIA copy {" + this + "} in the observer list of the real MUIA...");
 		Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
-		originalMUIA = (MUIAObservable) registry.lookup(this.name);
-		originalMUIA.addObserver(((MUIAObserver) selfRemoteReference));
+		remoteOriginalMUIA = (CopyMUIAObservable) registry.lookup(this.name);
+		remoteOriginalMUIA.addCopyMUIAObserver(((CopyMUIAObserver) selfRemoteReference));
 		alive = true;
 	}
 	
 	/**
-	 * Get the {@link application.Client} instance in the MUIA clients list or in your network based in a client name.
+	 * Gets the {@link application.Client} instance in the MUIA clients list or in your network based in a client name.
 	 * @param clientName - String containing the name of client to be searched.
 	 * @return {@link application.Client} instance of searched client name or {@value null} if have no client
 	 * registered with the specified client name in the MUIA network.
@@ -232,7 +240,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 	
 	/**
-	 * Get the {@link sending.Channel} instance in the MUIA channels list based in a channel id.
+	 * Gets the {@link sending.Channel} instance in the MUIA channels list based in a channel id.
 	 * This method can't be used by copy MUIAs.
 	 * @param channelId - String containing the id of the channel to be searched.
 	 * @return {@link sending.Channel} instance of searched channel id or {@value null} if have no channel registered
@@ -252,7 +260,13 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		return null;
 	}
 	
-	public MUIA getMUIAReference(String muiaName) {
+	/**
+	 * Gets the {@link application.MUIA} instance in the MUIA knownMuias list based in the MUIA name.
+	 * @param muiaName - String containing the name of the known MUIA to be searched.
+	 * @return {@link application.MUIA} instance of searched MUIA name or {@value null} if the MUIA don't
+	 * knows the searched MUIA name.
+	 */
+	public MUIA getMUIAReference(String muiaName) {		
 		for( MUIA knownMUIA : knownMUIAs ) {
 			if( !knownMUIA.isAlive() ) {
 				continue;
@@ -267,14 +281,14 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 
 	/**
-	 * Method to add (register) a application in the MUIA instance. If the
-	 * addition occurs smoothly, the observers are updated.
-	 *
-	 * @param application - {@link application.Application} to be registered in
-	 * the MUIA instance.
-	 * @return Boolean true if the application was successfully added in the
-	 * MUIA instance or false if the application is already contained in the
-	 * MUIA instance or the addition operation have a error.
+	 * Adds (register) a client in the MUIA.
+	 * If a client with the same name of the client to be registered is already registered in
+	 * the MUIA, the register need to be canceled.
+	 * If the register occurs smoothly and the MUIA is not a copy, the observers are notified.
+	 * @param client - {@link application.client} to be registered in the MUIA.
+	 * @return Boolean true if the client was successfully added in the MUIA or false if a 
+	 * client with the same name is already registered in the MUIA or the addition operation
+	 * have a error.
 	 */
 	public Boolean addClient(Client client) {
 		Boolean exists = false;
@@ -298,14 +312,11 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 
 	/**
-	 * Method to remove (unregister) a application in the MUIA instance. If the
-	 * removal occours smoothly, the observers are updated.
-	 *
-	 * @param application - {@link application.Application} to be removed in the
-	 * MUIA instance.
-	 * @return Boolean true if the application was successfully removed from the
-	 * MUIA instance or false if the application doesn't exists in the MUIA
-	 * instance or the removal operation have a error.
+	 * Removes (unregister) a client in the MUIA.
+	 * If the removal occurs smoothly and the MUIA is not a copy, the observers are notified.
+	 * @param client - {@link application.Client} to be removed in the MUIA.
+	 * @return Boolean true if the client was successfully removed from the MUIA or false
+	 * if the client doesn't exists in the MUIA or the removal operation have a error.
 	 */
 	public Boolean removeClient(Client client) {
 		Boolean operation = clients.remove(client);
@@ -317,7 +328,24 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		return operation;
 	}
 	
+	/**
+	 * Adds (register) a channel in the MUIA.
+	 * This method can't be used by copy MUIAs.
+	 * If a channel with the same id of the channel to be registered is already registered in
+	 * the MUIA, the register need to be canceled.
+	 * If the register occurs smoothly, the observers are notified.
+	 * When the channel is registered in the MUIA, the MUIA will be added in the observers
+	 * list of the channel.
+	 * @param channel - {@link sending.Channel} to be registered in the MUIA instance.
+	 * @return Boolean true if the channel was successfully added in the MUIA or false if
+	 * a channel with the same id is already registered in the MUIA or the addition
+	 * operation have a error.
+	 */
 	public Boolean addChannel( Channel channel ) {
+		if( isCopy() ) {
+			return null;
+		}
+		
 		Boolean exists = false;
 		for( Channel alreadyAddedChannel : channels ) {
 			if (alreadyAddedChannel.getId().equals(channel.getId())) {
@@ -331,24 +359,83 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			operation = channels.add(channel);
 		}
 
-		if (operation && !isCopy()) {
+		if (operation) {
+			channel.addObserver(this);
 			notifyChannelAddition(channel);
 		}
 
 		return operation;
 	}
 	
+	/**
+	 * Removes (unregister) a channel in the MUIA.
+	 * This method can't be used by copy MUIAs.
+	 * If the removal occurs smoothly, the observers are notified.
+	 * When the channel is removed from the MUIA, the MUIA will be removed from the
+	 * observers list of the channel.
+	 * @param channel - {@link sending.Channel} to be removed in the MUIA.
+	 * @return Boolean true if the channel was successfully removed from the MUIA or false
+	 * if the channel doesn't exists in the MUIA or the removal operation have a error.
+	 */
 	public Boolean removeChannel( Channel channel ){
+		if( isCopy() ) {
+			return null;
+		}
+		
 		Boolean operation = channels.remove(channel);
 
-		if (operation && !isCopy()) {
+		if (operation) {
+			channel.removeObserver(this);
 			notifyChannelRemoval(channel);
 		}
 
 		return operation;
 	}
 	
-	private void updateNewObserverWithAllData(MUIAObserver observer) throws UnableToUpdateObserverException {
+	public Boolean addKnownMUIA( MUIA muia ) {
+		Boolean exists = false;
+		for( MUIA knownMUIA : knownMUIAs ) {
+			if (knownMUIA.getName().equals(muia.getName())) {
+				exists = true;
+				break;
+			}
+		}
+		
+		Boolean operation = false;
+		if (!exists) {
+			operation = knownMUIAs.add(muia);
+		}
+
+		if (operation) {
+			//muia.addOriginalMUIAObserver(this);
+		}
+
+		return operation;
+	}
+	
+	public Boolean removeKnownMUIA( MUIA muia ) {
+		Boolean operation = knownMUIAs.remove(muia);
+
+		if (operation) {
+			//muia.removeOriginalMUIAObserver(this);
+		}
+
+		return operation;
+	}
+	
+	/**
+	 * Updates {@link application.interfaces.CopyMUIAObserver} with all clients registered in the original MUIA.
+	 * This method can't be used by copy MUIAs.
+	 * @param observer - {@link application.interfaces.CopyMUIAObserver} what will be updated with all clients
+	 * registered in the original MUIA.
+	 * @throws UnableToUpdateObserverException when the {@link application.interfaces.CopyMUIAObserver} can't receive
+	 * a client update.
+	 */
+	private void updateObserverClientAllData(CopyMUIAObserver observer) throws UnableToUpdateObserverException {
+		if( isCopy() ) {
+			return;
+		}
+		
 		SerializableHandler<Client> shClient = new SerializableHandler<Client>();
 		byte[] serializedClient;
 		for( Client client : clients ) {
@@ -358,6 +445,20 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			} catch (RemoteException e) {
 				throw new UnableToUpdateObserverException();
 			}
+		}
+	}
+	
+	/**
+	 * Updates {@link application.interfaces.OriginalMUIAObserver} with all channels registered in the original MUIA.
+	 * This method can't be used by copy MUIAs.
+	 * @param observer - {@link application.interfaces.OriginalMUIAObserver} what will be updated with all channels
+	 * registered in the original MUIA.
+	 * @throws UnableToUpdateObserverException when the {@link application.interfaces.OriginalMUIAObserver} can't
+	 * receive a channel update.
+	 */
+	private void updateObserverChannelAllData( OriginalMUIAObserver observer ) throws UnableToUpdateObserverException {
+		if( isCopy() ) {
+			return;
 		}
 		
 		SerializableHandler<Channel> shChannel = new SerializableHandler<Channel>();
@@ -372,6 +473,10 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		}
 	}
 	
+	/**
+	 * Verifies if the MUIA is a copy or not.
+	 * @return Boolean containing true if the MUIA is a copy or false when not.
+	 */
 	public Boolean isCopy() {
 		return copy;
 	}
@@ -387,23 +492,24 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 	
 	@Override
-	public Boolean addObserver(MUIAObserver observer) {
+	public Boolean addCopyMUIAObserver(CopyMUIAObserver observer) {
 		if( isCopy() ) {
 			return null;
 		}
 		
 		Boolean addObsOperation = false;
-		if (!observers.contains(observer)) {
+		if (!copyMUIAobservers.contains(observer)) {
 			Boolean updateObsOperation = true;
 			try {
-				updateNewObserverWithAllData(observer);
+				updateObserverClientAllData(observer);
 			} catch (UnableToUpdateObserverException e) {
 				updateObsOperation = false;
-				Logger.error( "Cannot update the observer {" + ((MUIA)observer).toString() + "}" );
+				Logger.error( "Unable to send all clients and update the observer {"
+						+ ((MUIA)observer).toString() + "}" );
 			}
 			
 			if( updateObsOperation ) {
-				addObsOperation = observers.add(observer);
+				addObsOperation = copyMUIAobservers.add(observer);
 			}
 		}
 
@@ -411,12 +517,12 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 
 	@Override
-	public Boolean removeObserver(MUIAObserver observer) {
+	public Boolean removeCopyMUIAObserver(CopyMUIAObserver observer) {
 		if( isCopy() ) {
 			return null;
 		}
 		
-		return observers.remove(observer);
+		return copyMUIAobservers.remove(observer);
 	}
 
 	@Override
@@ -428,7 +534,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		SerializableHandler<Client> sh = new SerializableHandler<Client>();
 		byte[] serializedClient = sh.serialize(client);
 		
-		for (MUIAObserver observer : observers ) {
+		for (CopyMUIAObserver observer : copyMUIAobservers ) {
 			try {
 				observer.updateClientAddition(serializedClient);
 			} catch (RemoteException e) {
@@ -443,16 +549,47 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			return;
 		}
 		
-		SerializableHandler<Client> sh = new SerializableHandler<Client>();
-		byte[] serializedClient = sh.serialize(client);
-		
-		for( MUIAObserver observer : observers ) {
+		for( CopyMUIAObserver observer : copyMUIAobservers ) {
 			try {
-				observer.updateClientRemoval(serializedClient);
+				observer.updateClientRemoval(client.getName());
 			} catch (RemoteException e) {
 				Logger.error( "Cannot update client removal in the observer {" + ((MUIA)observer).toString() + "}" );
 			}
 		}
+	}
+	
+	@Override
+	public Boolean addOriginalMUIAObserver(OriginalMUIAObserver observer) {
+		if( isCopy() ) {
+			return null;
+		}
+		
+		Boolean addObsOperation = false;
+		if (!originalMUIAObservers.contains(observer)) {
+			Boolean updateObsOperation = true;
+			try {
+				updateObserverChannelAllData(observer);
+			} catch (UnableToUpdateObserverException e) {
+				updateObsOperation = false;
+				Logger.error( "Unable to send all channels and update the observer {"
+						+ ((MUIA)observer).toString() + "}" );
+			}
+			
+			if( updateObsOperation ) {
+				addObsOperation = originalMUIAObservers.add(observer);
+			}
+		}
+
+		return addObsOperation;
+	}
+
+	@Override
+	public Boolean removeOriginalMUIAObserver(OriginalMUIAObserver observer) {
+		if( isCopy() ) {
+			return null;
+		}
+		
+		return originalMUIAObservers.remove(observer);
 	}
 	
 	@Override
@@ -464,7 +601,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 		SerializableHandler<Channel> sh = new SerializableHandler<Channel>();
 		byte[] serializedChannel = sh.serialize(channel);
 		
-		for( MUIAObserver observer : observers ) {
+		for( OriginalMUIAObserver observer : originalMUIAObservers ) {
 			try {
 				observer.updateChannelAddition(serializedChannel);
 			} catch (RemoteException e) {
@@ -479,12 +616,9 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			return;
 		}
 		
-		SerializableHandler<Channel> sh = new SerializableHandler<Channel>();
-		byte[] serializedChannel = sh.serialize(channel);
-		
-		for( MUIAObserver observer : observers ) {
+		for( OriginalMUIAObserver observer : originalMUIAObservers ) {
 			try {
-				observer.updateChannelRemoval(serializedChannel);
+				observer.updateChannelRemoval( channel.getId() );
 			} catch (RemoteException e) {
 				Logger.error( "Cannot update channel removal in the observer {" + ((MUIA)observer).toString() + "}" );
 			}
@@ -497,11 +631,12 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			return;
 		}
 		
-		for( MUIAObserver observer : observers ) {
+		for( OriginalMUIAObserver observer : originalMUIAObservers ) {
 			try{
 				observer.updateChannelSubscribe( channel.getId(), client.getName() );
 			} catch(RemoteException e) {
-				Logger.error( "Cannot update channel subscribe in the observer {" + ((MUIA)observer).toString() + "}" );
+				Logger.error( "Cannot update channel subscribe in the observer {" 
+						+ ((MUIA)observer).toString() + "}" );
 			}
 		}
 	}
@@ -512,7 +647,7 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 			return;
 		}
 		
-		for( MUIAObserver observer : observers ) {
+		for( OriginalMUIAObserver observer : originalMUIAObservers ) {
 			try{
 				observer.updateChannelUnsubscribe( channel.getId(), client.getName() );
 			} catch(RemoteException e) {
@@ -534,14 +669,17 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 
 	@Override
-	public void updateClientRemoval(byte[] serializedClient) {
+	public void updateClientRemoval(String clientName) {
 		if( !isCopy() ) {
 			return;
 		}
 		
-		SerializableHandler<Client> sh = new SerializableHandler<Client>();
-		Client client = sh.deserialize(serializedClient);
-		removeClient(client);
+		for( Client client : clients ) {
+			if( client.getName().equals(clientName) ) {
+				removeClient(client);
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -556,14 +694,17 @@ public class MUIA extends Application implements MUIAObserver, MUIAObservable, C
 	}
 
 	@Override
-	public void updateChannelRemoval(byte[] serializedChannel) {
+	public void updateChannelRemoval(String channelId) {
 		if( !isCopy() ) {
 			return;
 		}
 		
-		SerializableHandler<Channel> sh = new SerializableHandler<Channel>();
-		Channel channel = sh.deserialize(serializedChannel);
-		removeChannel(channel);
+		for( Channel channel : channels ) {
+			if( channel.getId().equals(channelId) ) {
+				removeChannel(channel);
+				break;
+			}
+		}
 	}
 	
 	@Override
