@@ -5,9 +5,9 @@ import common.Logger;
 
 public class MUIAChecker implements Runnable {
 	private static final Long TIME_TO_WAIT_BEFORE_START = (long) 10000;
-	private MUIA checkable;
+	private CopyMUIA checkable;
 	
-	public MUIAChecker( MUIA checkable ) {
+	public MUIAChecker( CopyMUIA checkable ) {
 		this.checkable = checkable;
 	}
 

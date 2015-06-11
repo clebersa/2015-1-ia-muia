@@ -1,12 +1,11 @@
 package application.interfaces;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import sending.Channel;
 import application.Client;
 
-public interface OriginalMUIAObservable extends Remote {
+public interface OriginalMUIAObservable extends CopyMUIAObservable {
 	public Boolean addOriginalMUIAObserver( OriginalMUIAObserver observer ) throws RemoteException;
 	public Boolean removeOriginalMUIAObserver( OriginalMUIAObserver observer ) throws RemoteException;
 	

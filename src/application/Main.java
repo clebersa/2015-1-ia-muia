@@ -38,11 +38,10 @@ public class Main {
 		}
 		
 		try {
-			Main.self = new MUIA(Configuration.get(Configuration.MUIA_HOST_NAME),
+			Main.self = new OriginalMUIA(Configuration.get(Configuration.MUIA_HOST_NAME),
 					Configuration.get(Configuration.MUIA_HOST_IP),
 					Integer.parseInt(Configuration.get(Configuration.MUIA_HOST_PORT)),
-					Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)),
-					false);
+					Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)));
 			Logger.info("MUIA host initialized");
 		} catch (UnknownHostException ex) {
 			Logger.error("Unable to instantiate the host MUIA. Error: " 
