@@ -44,6 +44,8 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 		try {
 			synchronizeCopyToOriginalMUIA();
 		} catch (RemoteException | NotBoundException e) {
+			alive = false;
+			remoteOriginalMUIA = null;
 			Logger.error("Unable to synchronyze MUIA copy {" + this + "} with your real MUIA");
 		}
 	}
@@ -93,6 +95,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 			try {
 				synchronizeCopyToOriginalMUIA();
 			} catch (RemoteException | NotBoundException e) {
+				remoteOriginalMUIA = null;
 				Logger.error("Unable to synchronyze MUIA copy {" + this + "} with your real MUIA");
 			}
 		}

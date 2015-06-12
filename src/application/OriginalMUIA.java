@@ -264,7 +264,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		if (operation) {
 			try {
 				muia.getRemoteOriginalMUIA().addOriginalMUIAObserver(this);
-			} catch (RemoteException e) {
+			} catch (RemoteException | NullPointerException e) {
 				Logger.error( "Unable to register the original MUIA like a original MUIA observer in the MUIA {"
 						+ muia + "}, removing the known muia..." );
 				removeKnownMUIA(muia);
@@ -286,7 +286,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		if (operation) {
 			try {
 				muia.getRemoteOriginalMUIA().removeOriginalMUIAObserver(this);
-			} catch (RemoteException e) {
+			} catch (RemoteException | NullPointerException e) {
 				Logger.warning( "Cannot unregister the original MUIA from the original MUIA observer list of MUIA {"
 						+ muia + "}");
 			}

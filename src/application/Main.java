@@ -33,8 +33,8 @@ public class Main {
 		}
 		
 		try {
+			System.setProperty("java.rmi.server.hostname", Configuration.get(Configuration.MUIA_HOST_IP));
 			LocateRegistry.createRegistry(Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)));
-			LocateRegistry.createRegistry(9990);
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -48,14 +48,14 @@ public class Main {
 			Main.self.addChannel(c1);
 			Logger.info("MUIA host initialized");
 			
-			OriginalMUIA o = new OriginalMUIA( "muia2", "127.0.0.1", 2002, 9990 );
+			/*OriginalMUIA o = new OriginalMUIA( "muia2", "127.0.0.1", 2002, 9990 );
 			CopyMUIA t1 = new CopyMUIA(Configuration.get(Configuration.MUIA_HOST_NAME),
 					Configuration.get(Configuration.MUIA_HOST_IP),
 					Integer.parseInt(Configuration.get(Configuration.MUIA_HOST_PORT)),
 					Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)));
-			o.addKnownMUIA(t1);
+			o.addKnownMUIA(t1);*/
 			
-			CopyMUIA t2 = new CopyMUIA("muia2", "127.0.0.1", 2002, 9990);
+			CopyMUIA t2 = new CopyMUIA("MUIA2", "10.16.0.24", 2000, 9998);
 			
 			Main.self.addKnownMUIA(t2);
 			
@@ -63,8 +63,8 @@ public class Main {
 			Client c = new Client("app", "127.0.0.1", 2000);
 			Channel c2 = new Channel("CANAL 2");
 			
-			o.addClient(c);
-			o.addChannel(c2);
+			Main.self.addClient(c);
+			Main.self.addChannel(c2);
 		} catch (UnknownHostException ex) {
 			Logger.error("Unable to instantiate the host MUIA. Error: " 
 					+ ex.getMessage());
