@@ -3,7 +3,6 @@ package application.interfaces;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-import sending.Channel;
 import application.Client;
 
 

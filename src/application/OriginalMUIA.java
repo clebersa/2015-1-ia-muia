@@ -14,32 +14,32 @@ import sending.interfaces.ChannelObserver;
 import application.exceptions.UnableToCreateMUIAException;
 import application.exceptions.UnableToUpdateObserverException;
 import application.interfaces.CopyMUIAObserver;
-import application.interfaces.OriginalMUIAObservable;
+import application.interfaces.MUIAObservable;
 import application.interfaces.OriginalMUIAObserver;
 
-public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelObserver, OriginalMUIAObservable {
+public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelObserver, MUIAObservable {
 	/**
 	 * Unique serial long used to identify the class in the serialization and deserialization.
 	 */
 	private static final long serialVersionUID = 2168894143033011129L;
 	
 	/**
-	 * List of Copy MUIA observers, only used by original MUIAs.
+	 * List containing the copy MUIA observers.
 	 */
 	private ArrayList<CopyMUIAObserver> copyMUIAobservers = new ArrayList<CopyMUIAObserver>();
 	
 	/**
-	 * List of Original MUIA observers, only used by original MUIAs.
+	 * List containing the original MUIA observers.
 	 */
 	private ArrayList<OriginalMUIAObserver> originalMUIAObservers = new ArrayList<OriginalMUIAObserver>();
 	
 	/**
-	 * List of known MUIAs of MUIA host. 
+	 * List containing the Copy MUIAs that are the known MUIAs of the original MUIA. 
 	 */
 	private ArrayList<CopyMUIA> knownMUIAs = new ArrayList<CopyMUIA>();
 	
 	/**
-	 * List of active channels in the MUIA network, only used by original MUIAs.
+	 * List containing the active channels in the MUIA network.
 	 */
 	private ArrayList<Channel> channels = new ArrayList<Channel>();
 
@@ -51,7 +51,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	 * @param registryPort - Integer containing the port of registry where the MUIA is binded.
 	 * @throws UnknownHostException when the address parameter is not found.
 	 * @throws UnableToCreateMUIAException when is not possible to create the remote reference of MUIA or when have a
-	 * problem to register the original MUIA host in the registry..
+	 * problem to register the original MUIA host in the registry.
 	 */
 	public OriginalMUIA(String name, String address, Integer port, Integer registryPort) throws UnknownHostException,
 			UnableToCreateMUIAException {
@@ -66,16 +66,18 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	}
 	
 	/**
-	 * Registers the original MUIA host in your registry.
-	 * @throws RemoteException while binding original MUIA host in your registry.
+	 * Registers the original MUIA in your registry.
+	 * After the register is done, and only if that occurs successfully, the MUIA is changed to alive.
+	 * @throws RemoteException when an error occurs while binding the original MUIA in your registry.
 	 * @throws AlreadyBoundException when a application with the same name of the original MUIA host is registered in
 	 * the registry.
 	 */
 	public void registerMUIAHostInRegistry() throws RemoteException, AlreadyBoundException {
-		Logger.info("Registering MUIA host in the registry...");
 		Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
-		registry.bind(this.name, ((OriginalMUIAObservable)selfRemoteReference));
+		registry.bind(this.name, ((MUIAObservable)selfRemoteReference));
 		alive = true;
+		
+		Logger.info("Original MUIA host registered in the registry");
 	}
 	
 	/**
@@ -84,6 +86,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	 * @return {@link application.Client} instance of searched client name or {@value null} if have no client
 	 * registered with the specified client name in the MUIA network.
 	 */
+	@Override
 	public Client getClientReference( String clientName ) {
 		Client client = super.getClientReference(clientName);
 		
@@ -91,13 +94,13 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			return client;
 		}
 		
-		for( MUIA knownMUIA : knownMUIAs ) {
+		for( CopyMUIA knownMUIA : knownMUIAs ) {
 			if( !knownMUIA.isAlive() ) {
 				continue;
 			}
 			
 			client = knownMUIA.getClientReference(clientName);
-			if (client != null) {
+			if ( client != null ) {
 				return client;
 			}
 		}
@@ -109,12 +112,13 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	 * Adds (register) a client in the MUIA.
 	 * If a client with the same name of the client to be registered is already registered in
 	 * the MUIA, the register need to be canceled.
-	 * If the register occurs smoothly and the MUIA is not a copy, the observers are notified.
+	 * If the register occurs smoothly in the original MUIA, the copy observers are notified.
 	 * @param client - {@link application.client} to be registered in the MUIA.
 	 * @return Boolean true if the client was successfully added in the MUIA or false if a 
 	 * client with the same name is already registered in the MUIA or the addition operation
 	 * have a error.
 	 */
+	@Override
 	public Boolean addClient(Client client) {
 		Boolean operation = super.addClient(client);
 		
@@ -127,11 +131,12 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 
 	/**
 	 * Removes (unregister) a client in the MUIA.
-	 * If the removal occurs smoothly and the MUIA is not a copy, the observers are notified.
+	 * If the removal occurs smoothly in the original MUIA, the copy observers are notified.
 	 * @param client - {@link application.Client} to be removed in the MUIA.
 	 * @return Boolean true if the client was successfully removed from the MUIA or false
 	 * if the client doesn't exists in the MUIA or the removal operation have a error.
 	 */
+	@Override
 	public Boolean removeClient(Client client) {
 		Boolean operation = super.removeClient(client);
 
@@ -143,11 +148,10 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	}
 	
 	/**
-	 * Gets the {@link sending.Channel} instance in the MUIA channels list based in a channel id.
-	 * This method can't be used by copy MUIAs.
+	 * Gets the {@link sending.Channel} instance in the original MUIA channels list based in a channel id.
 	 * @param channelId - String containing the id of the channel to be searched.
 	 * @return {@link sending.Channel} instance of searched channel id or {@value null} if have no channel registered
-	 * with the specified id in the MUIA.
+	 * with the specified id in the original MUIA.
 	 */
 	public Channel getChannelReference( String channelId ) {
 		for( Channel channel : channels ) {
@@ -160,13 +164,13 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	}
 	
 	/**
-	 * Gets the {@link application.MUIA} instance in the MUIA knownMuias list based in the MUIA name.
+	 * Gets the {@link application.CopyMUIA} instance in the MUIA knownMuias list based in the MUIA name.
 	 * @param muiaName - String containing the name of the known MUIA to be searched.
-	 * @return {@link application.MUIA} instance of searched MUIA name or {@value null} if the MUIA don't
+	 * @return {@link application.CopyMUIA} instance of searched MUIA name or {@value null} if the MUIA don't
 	 * knows the searched MUIA name.
 	 */
-	public MUIA getMUIAReference(String muiaName) {		
-		for( MUIA knownMUIA : knownMUIAs ) {
+	public CopyMUIA getMUIAReference(String muiaName) {		
+		for( CopyMUIA knownMUIA : knownMUIAs ) {
 			if( !knownMUIA.isAlive() ) {
 				continue;
 			}
@@ -180,12 +184,12 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	}
 	
 	/**
-	 * Adds (register) a channel in the MUIA.
+	 * Adds (register) a channel in the original MUIA.
 	 * If a channel with the same id of the channel to be registered is already registered in
-	 * the MUIA, the register need to be canceled.
-	 * If the register occurs smoothly, the observers are notified.
-	 * When the channel is registered in the MUIA, the MUIA will be added in the observers
-	 * list of the channel.
+	 * the original MUIA, the register will be canceled.
+	 * If the register occurs smoothly, the original observers will be notified.
+	 * When the channel is registered in the original MUIA, the MUIA will be added in the
+	 * observers list of the channel.
 	 * @param channel - {@link sending.Channel} to be registered in the MUIA instance.
 	 * @return Boolean true if the channel was successfully added in the MUIA or false if
 	 * a channel with the same id is already registered in the MUIA or the addition
@@ -214,9 +218,9 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	}
 	
 	/**
-	 * Removes (unregister) a channel in the MUIA.
-	 * If the removal occurs smoothly, the observers are notified.
-	 * When the channel is removed from the MUIA, the MUIA will be removed from the
+	 * Removes (unregister) a channel from the original MUIA.
+	 * If the removal occurs smoothly, the original observers will be notified.
+	 * When the channel is removed from the original MUIA, the MUIA will be removed from the
 	 * observers list of the channel.
 	 * @param channel - {@link sending.Channel} to be removed in the MUIA.
 	 * @return Boolean true if the channel was successfully removed from the MUIA or false
@@ -233,6 +237,16 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		return operation;
 	}
 	
+	/**
+	 * Adds (register) a copy MUIA in the original MUIA known MUIAs list.
+	 * When the copy MUIA is registered in the original MUIA, the original MUIA will be
+	 * registered in the original observers list of the remote original MUIA of the copy
+	 * (IF THE ORIGINAL OBSERVER REGISTER FAIL, THE ADDITION OF THE KNOWN MUIA WILL BE CANCELED)
+	 * @param muia - {@link application.CopyMUIA} to be added in the original MUIA known network.
+	 * @return Boolean true if the Copy MUIA was successfully added in the original MUIA or false
+	 * if the Copy MUIA with the same name is registered in the original MUIA or the add operation
+	 * have failed.
+	 */
 	public Boolean addKnownMUIA( CopyMUIA muia ) {
 		Boolean exists = false;
 		for( CopyMUIA knownMUIA : knownMUIAs ) {
@@ -248,17 +262,34 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		}
 
 		if (operation) {
-			//muia.addOriginalMUIAObserver(this);
+			try {
+				muia.getRemoteOriginalMUIA().addOriginalMUIAObserver(this);
+			} catch (RemoteException e) {
+				Logger.error( "Unable to register the original MUIA like a original MUIA observer in the MUIA {"
+						+ muia + "}, removing the known muia..." );
+				removeKnownMUIA(muia);
+			}
 		}
 
 		return operation;
 	}
 	
+	/**
+	 * Removes (unregister) a copy MUIA from the original MUIA known MUIAs list.
+	 * @param muia - {@link application.CopyMUIA} to be removed from the original MUIA.
+	 * @return Boolean true if the copy MUIA was successfully removed from the original MUIA or
+	 * false if the copy MUIA doesn't exists in the MUIA or the removal operation have a error.
+	 */
 	public Boolean removeKnownMUIA( CopyMUIA muia ) {
 		Boolean operation = knownMUIAs.remove(muia);
 
 		if (operation) {
-			//muia.removeOriginalMUIAObserver(this);
+			try {
+				muia.getRemoteOriginalMUIA().removeOriginalMUIAObserver(this);
+			} catch (RemoteException e) {
+				Logger.warning( "Cannot unregister the original MUIA from the original MUIA observer list of MUIA {"
+						+ muia + "}");
+			}
 		}
 
 		return operation;
@@ -399,7 +430,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	public void notifyChannelRemoval(Channel channel) {
 		for( OriginalMUIAObserver observer : originalMUIAObservers ) {
 			try {
-				observer.updateChannelRemoval( channel.getId() );
+				observer.updateChannelRemoval(channel.getId());
 			} catch (RemoteException e) {
 				Logger.error( "Cannot update channel removal in the observer {" + ((MUIA)observer).toString() + "}" );
 			}
@@ -435,6 +466,8 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		SerializableHandler<Channel> sh = new SerializableHandler<Channel>();
 		Channel channel = sh.deserialize(serializedChannel);
 		addChannel(channel);
+		
+		Logger.debug("Channel " + channel.getId() + " added in the MUIA {" + this + "}");
 	}
 
 	@Override

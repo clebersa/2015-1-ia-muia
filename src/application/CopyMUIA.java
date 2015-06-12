@@ -9,8 +9,8 @@ import java.rmi.registry.Registry;
 import common.Logger;
 import common.SerializableHandler;
 import application.exceptions.UnableToCreateMUIAException;
-import application.interfaces.CopyMUIAObservable;
 import application.interfaces.CopyMUIAObserver;
+import application.interfaces.MUIAObservable;
 
 
 public class CopyMUIA extends MUIA implements CopyMUIAObserver {
@@ -22,7 +22,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 	/**
 	 * Remote Reference of the original MUIA, only used by copy MUIAs.
 	 */
-	protected CopyMUIAObservable remoteOriginalMUIA;
+	private MUIAObservable remoteOriginalMUIA;
 	
 	/**
 	 * Creates a new instance of the CopyMUIA class.
@@ -49,7 +49,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 	}
 	
 	/**
-	 * Establishes the connection of copy MUIA with your original MUIA and synchronize it by the subscription of the
+	 * Establishes the connection of copy MUIA with your original MUIA and synchronize it by the register of the
 	 * copy in the list of observers of the original MUIA. 
 	 * @throws RemoteException while getting the original MUIA registry, while getting original MUIA remote reference
 	 * in the registry or while adding the copy in the observer list of the original MUIA.
@@ -58,11 +58,13 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 	public void synchronizeCopyToOriginalMUIA() throws RemoteException, NotBoundException {
 		clients.clear();
 		
-		Logger.info("Subscribing local MUIA copy {" + this + "} in the observer list of the real MUIA...");
 		Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
-		remoteOriginalMUIA = (CopyMUIAObservable) registry.lookup(this.name);
+		remoteOriginalMUIA = (MUIAObservable) registry.lookup(this.name);
 		remoteOriginalMUIA.addCopyMUIAObserver(((CopyMUIAObserver) selfRemoteReference));
 		alive = true;
+		
+		Logger.info("Copy MUIA {" + this + "} successfully registered in the copy MUIA observers list of the"
+				+ " original MUIA");
 	}
 	
 	/**
@@ -96,11 +98,21 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 		}
 	}
 	
+	/**
+	 * Gets the Remote reference of the original MUIA.
+	 * @return MUIAObservable remote reference of the original MUIA.
+	 */
+	public MUIAObservable getRemoteOriginalMUIA() {
+		return remoteOriginalMUIA;
+	}
+	
 	@Override
 	public void updateClientAddition(byte[] serializedClient) {
 		SerializableHandler<Client> sh = new SerializableHandler<Client>();
 		Client client = sh.deserialize(serializedClient);
 		addClient(client);
+		
+		Logger.debug("Client " + client + " added in the MUIA {" + this + "}");
 	}
 
 	@Override

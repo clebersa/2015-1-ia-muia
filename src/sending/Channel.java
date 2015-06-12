@@ -20,6 +20,10 @@ public class Channel implements ChannelObservable, Serializable {
 	private ArrayList<ChannelObserver> observers = new ArrayList<ChannelObserver>();
 	private ArrayList<Client> subscribers = new ArrayList<Client>();
 	
+	public Channel(String id) {
+		this.id = id;
+	}
+	
 	public String getId() {
 		return id;
 	}

@@ -10,9 +10,8 @@ import application.exceptions.UnableToCreateMUIAException;
 import common.Logger;
 
 /**
- * Class of a MUIA in the MUIA server application. This class identify a MUIA
- * instance that contains the instance location and management of instance
- * registered applications.
+ * Abstract class of a MUIA. This class provides a basic structure for original MUIAs and copy MUIAs.
+ * This structure provide a way to identify and get the MUIA instance, being or not a copy.
  *
  * @author Bruno Soares da Silva
  * @since 28/05/2015
@@ -34,12 +33,12 @@ public abstract class MUIA extends Application implements Remote {
 	protected Boolean alive;
 	
 	/**
-	 * Remote containing the reference of the MUIA
+	 * Remote containing the remote reference of the MUIA
 	 */
 	protected Remote selfRemoteReference;
 	
 	/**
-	 * List of clients registered in the MUIA instance.
+	 * List containing the clients registered in the MUIA.
 	 */
 	protected ArrayList<Client> clients = new ArrayList<Client>();
 	
