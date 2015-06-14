@@ -55,6 +55,7 @@ public abstract class MUIA extends Application implements Remote {
 			UnableToCreateMUIAException {
 		super(name, address, port);
 		this.registryPort = registryPort;
+		alive = false;
 		
 		try {
 			selfRemoteReference = UnicastRemoteObject.exportObject(this, 0);

@@ -72,9 +72,9 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	 * @throws AlreadyBoundException when a application with the same name of the original MUIA host is registered in
 	 * the registry.
 	 */
-	public void registerMUIAHostInRegistry() throws RemoteException, AlreadyBoundException {
-		Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
-		registry.bind(this.name, ((MUIAObservable)selfRemoteReference));
+	private void registerMUIAHostInRegistry() throws RemoteException, AlreadyBoundException {
+		Registry registry = LocateRegistry.getRegistry(address.getHostAddress(), registryPort);
+		registry.bind(name, ((MUIAObservable)selfRemoteReference));
 		alive = true;
 		
 		Logger.info("Original MUIA host registered in the registry");
@@ -239,9 +239,8 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	
 	/**
 	 * Adds (register) a copy MUIA in the original MUIA known MUIAs list.
-	 * When the copy MUIA is registered in the original MUIA, the original MUIA will be
-	 * registered in the original observers list of the remote original MUIA of the copy
-	 * (IF THE ORIGINAL OBSERVER REGISTER FAIL, THE ADDITION OF THE KNOWN MUIA WILL BE CANCELED)
+	 * When the copy MUIA is registered in the original MUIA, the original MUIA tries to
+	 * register in the original observers list of the remote original MUIA of the copy.
 	 * @param muia - {@link application.CopyMUIA} to be added in the original MUIA known network.
 	 * @return Boolean true if the Copy MUIA was successfully added in the original MUIA or false
 	 * if the Copy MUIA with the same name is registered in the original MUIA or the add operation
@@ -262,16 +261,24 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		}
 
 		if (operation) {
-			try {
-				muia.getRemoteOriginalMUIA().addOriginalMUIAObserver(this);
-			} catch (RemoteException | NullPointerException e) {
-				Logger.error( "Unable to register the original MUIA like a original MUIA observer in the MUIA {"
-						+ muia + "}, removing the known muia..." );
-				removeKnownMUIA(muia);
-			}
+			registerKnownMuiaOriginalObserver(muia);
 		}
 
 		return operation;
+	}
+	
+	/**
+	 * Registers the original MUIA in the original observers list of the remote original MUIA
+	 * of the copy
+	 * @param knownCopyMUIA - {@link application.CopyMUIA} copy of remote original MUIA observable.
+	 */
+	public void registerKnownMuiaOriginalObserver(CopyMUIA knownCopyMUIA) {
+		try {
+			knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver(this);
+		} catch (RemoteException | NullPointerException e) {
+			Logger.warning( "Failed to register the original MUIA like a original MUIA observer in the MUIA {"
+					+ ((MUIA)knownCopyMUIA).toString() + "}" );
+		}
 	}
 	
 	/**
@@ -302,7 +309,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	 * @throws UnableToUpdateObserverException when the {@link application.interfaces.CopyMUIAObserver} can't receive
 	 * a client update.
 	 */
-	protected void updateObserverClientAllData(CopyMUIAObserver observer) throws UnableToUpdateObserverException {
+	private void updateObserverClientAllData(CopyMUIAObserver observer) throws UnableToUpdateObserverException {
 		SerializableHandler<Client> shClient = new SerializableHandler<Client>();
 		byte[] serializedClient;
 		for( Client client : clients ) {
@@ -322,7 +329,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	 * @throws UnableToUpdateObserverException when the {@link application.interfaces.OriginalMUIAObserver} can't
 	 * receive a channel update.
 	 */
-	protected void updateObserverChannelAllData( OriginalMUIAObserver observer ) throws UnableToUpdateObserverException {
+	private void updateObserverChannelAllData( OriginalMUIAObserver observer ) throws UnableToUpdateObserverException {
 		SerializableHandler<Channel> shChannel = new SerializableHandler<Channel>();
 		byte[] serializedChannel;
 		for( Channel channel : channels ) {

@@ -44,9 +44,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 		try {
 			synchronizeCopyToOriginalMUIA();
 		} catch (RemoteException | NotBoundException e) {
-			alive = false;
-			remoteOriginalMUIA = null;
-			Logger.error("Unable to synchronyze MUIA copy {" + this + "} with your real MUIA");
+			Logger.warning("Unable to synchronyze MUIA copy {" + this + "} with your real MUIA");
 		}
 	}
 	
@@ -57,13 +55,15 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 	 * in the registry or while adding the copy in the observer list of the original MUIA.
 	 * @throws NotBoundException when the original MUIA is not founded in the registry.
 	 */
-	public void synchronizeCopyToOriginalMUIA() throws RemoteException, NotBoundException {
+	private void synchronizeCopyToOriginalMUIA() throws RemoteException, NotBoundException {
 		clients.clear();
 		
-		Registry registry = LocateRegistry.getRegistry(this.address.getHostAddress(), this.registryPort);
-		remoteOriginalMUIA = (MUIAObservable) registry.lookup(this.name);
+		Registry registry = LocateRegistry.getRegistry(address.getHostAddress(), registryPort);
+		remoteOriginalMUIA = (MUIAObservable) registry.lookup(name);
 		remoteOriginalMUIA.addCopyMUIAObserver(((CopyMUIAObserver) selfRemoteReference));
 		alive = true;
+		
+		Main.getSelf().registerKnownMuiaOriginalObserver(this);
 		
 		Logger.info("Copy MUIA {" + this + "} successfully registered in the copy MUIA observers list of the"
 				+ " original MUIA");
@@ -96,7 +96,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 				synchronizeCopyToOriginalMUIA();
 			} catch (RemoteException | NotBoundException e) {
 				remoteOriginalMUIA = null;
-				Logger.error("Unable to synchronyze MUIA copy {" + this + "} with your real MUIA");
+				Logger.warning("Unable to synchronyze MUIA copy {" + this + "} with your real MUIA");
 			}
 		}
 	}

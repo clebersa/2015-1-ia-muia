@@ -23,7 +23,6 @@ public class MUIAChecker implements Runnable {
 		Logger.debug("MUIA Checker of MUIA copy {" + checkable + "} started!");
 		
 		while( true ) {
-			Logger.debug("KEEPING ALIVE...");
 			checkable.keepAlive();
 			
 			Long periodicity = Long.parseLong(Configuration.get(Configuration.MUIA_CHECKER_PERIODICITY)) * 1000;

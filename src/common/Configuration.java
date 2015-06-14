@@ -26,6 +26,8 @@ public class Configuration {
 	public static final String LOG_LEVEL = "log_level";
 	public static final String LOG_FILE = "log_file";
 	public static final String MUIA_CHECKER_PERIODICITY = "muia_checker_periodicity";
+	public static final String MUIA_NETWORK_FILE = "muia_network_file";
+	public static final String DEFAULT_CHANNELS_FILE = "default_channels_file"; 
 
 	public static String get(String configurationName) {
 		Properties properties = new Properties();
