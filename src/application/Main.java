@@ -19,26 +19,29 @@ public class Main {
 	private static OriginalMUIA self;
 	
 	public static void main(String[] args) throws InterruptedException {
+		String muiaName = Configuration.get(Configuration.MUIA_HOST_NAME);
+		String muiaIP = Configuration.get(Configuration.MUIA_HOST_IP);
+		Integer muiaServerPort = Integer.parseInt(Configuration.get(Configuration.MUIA_HOST_PORT));
+		Integer muiaRegistryPort = Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT));
+		
 		try{
 			ConnectionManager connectionManager = new ConnectionManager();
 			Thread cmThread = new Thread(connectionManager);
 			cmThread.start();
 		}catch(Exception e){
-			System.out.println("Error: "+ e.getMessage());
+			Logger.error("Unable to instantiate the Connection Manager of the MUIA");
 		}
 		
 		try {
-			System.setProperty("java.rmi.server.hostname", Configuration.get(Configuration.MUIA_HOST_IP));
-			LocateRegistry.createRegistry(Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)));
+			System.setProperty("java.rmi.server.hostname", muiaIP);
+			LocateRegistry.createRegistry(muiaRegistryPort);
 		} catch (RemoteException e) {
-			e.printStackTrace();
+			Logger.error("Unable to create registry: " + muiaIP + ":" + muiaRegistryPort);
+			// Finish the system...
 		}
 		
 		try {
-			Main.self = new OriginalMUIA(Configuration.get(Configuration.MUIA_HOST_NAME),
-					Configuration.get(Configuration.MUIA_HOST_IP),
-					Integer.parseInt(Configuration.get(Configuration.MUIA_HOST_PORT)),
-					Integer.parseInt(Configuration.get(Configuration.REGISTRY_PORT)));
+			Main.self = new OriginalMUIA(muiaName, muiaIP, muiaServerPort, muiaRegistryPort);
 			Logger.info("MUIA host initialized");
 		} catch (UnknownHostException ex) {
 			Logger.error("Unable to instantiate the host MUIA. Error: " 
