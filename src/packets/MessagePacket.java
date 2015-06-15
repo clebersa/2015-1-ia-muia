@@ -54,9 +54,6 @@ public class MessagePacket implements JsonDeserializer<MessagePacket> {
 			case "registration":
 				messageHeader = new RegistrationHeader();
 				break;
-			case "channel-getting":
-				messageHeader = new ChannelsGettingHeader();
-				break;
 			case "channel-subscribing":
 				messageHeader = new SubscribeHeader();
 				break;
