@@ -52,7 +52,8 @@ public class MessagingHeader extends MessageHeader {
 	}
 
 	@Override
-	public MessageHeader deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+	public MessageHeader deserialize(JsonElement json, Type typeOfT, 
+			JsonDeserializationContext context) throws JsonParseException {
 		//TODO
 		throw new UnsupportedOperationException("Not supported yet.");
 	}

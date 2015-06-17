@@ -46,8 +46,6 @@ public class RegistrationHeader extends MessageHeader {
 				+ register + "}";
 	}
 	
-	
-
 	@Override
 	public MessageHeader deserialize(JsonElement json, Type typeOfT, 
 			JsonDeserializationContext context) throws JsonParseException {

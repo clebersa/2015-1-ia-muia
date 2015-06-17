@@ -7,10 +7,6 @@ package receiving;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import common.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,7 +16,6 @@ import java.net.Socket;
 import operation.Operation;
 import operation.OperationFactory;
 import packets.ChannelCreatingHeader;
-import packets.ChannelsGettingHeader;
 import packets.ConnectionHeader;
 import packets.MessageData;
 import packets.MessagePacket;
@@ -85,8 +80,6 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 									new MessagingHeader())
 							.registerTypeAdapter(RegistrationHeader.class,
 									new RegistrationHeader())
-							.registerTypeAdapter(ChannelsGettingHeader.class,
-									new ChannelsGettingHeader())
 							.registerTypeAdapter(ChannelCreatingHeader.class,
 									new ChannelCreatingHeader())
 							.registerTypeAdapter(SubscribeHeader.class,

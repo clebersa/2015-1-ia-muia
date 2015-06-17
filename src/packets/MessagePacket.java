@@ -4,7 +4,6 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import common.Logger;
 import java.lang.reflect.Type;
 
 /**
@@ -47,7 +46,8 @@ public class MessagePacket implements JsonDeserializer<MessagePacket> {
 	}
 
 	@Override
-	public MessagePacket deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+	public MessagePacket deserialize(JsonElement json, Type typeOfT, 
+			JsonDeserializationContext context) throws JsonParseException {
 
 		String headerType = json.getAsJsonObject().get("header-type").getAsString();
 		if (null != headerType) switch (headerType) {
