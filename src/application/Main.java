@@ -13,6 +13,7 @@ import receiving.ConnectionManager;
 /**
  * Main class of MUIA.
  * @author Bruno Soares da Silva
+ * @author Cleber Alcântara <cleber.93cd@gmail.com>
  * @since 28/05/2015
  */
 public class Main {

@@ -77,7 +77,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		registry.bind(name, ((MUIAObservable)selfRemoteReference));
 		alive = true;
 		
-		Logger.info("Original MUIA host registered in the registry");
+		Logger.info("Original MUIA host successfully registered in the registry");
 	}
 	
 	/**
@@ -260,25 +260,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			operation = knownMUIAs.add(muia);
 		}
 
-		if (operation) {
-			registerKnownMuiaOriginalObserver(muia);
-		}
-
 		return operation;
-	}
-	
-	/**
-	 * Registers the original MUIA in the original observers list of the remote original MUIA
-	 * of the copy
-	 * @param knownCopyMUIA - {@link application.CopyMUIA} copy of remote original MUIA observable.
-	 */
-	public void registerKnownMuiaOriginalObserver(CopyMUIA knownCopyMUIA) {
-		try {
-			knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver(this);
-		} catch (RemoteException | NullPointerException e) {
-			Logger.warning( "Failed to register the original MUIA like a original MUIA observer in the MUIA {"
-					+ ((MUIA)knownCopyMUIA).toString() + "}" );
-		}
 	}
 	
 	/**
@@ -300,6 +282,35 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		}
 
 		return operation;
+	}
+	
+	/**
+	 * Registers the original MUIA in the original observers list of the remote original MUIA
+	 * of the copy
+	 * @param knownCopyMUIA - {@link application.CopyMUIA} copy of remote original MUIA observable.
+	 * @throws RemoteException when the MUIA copy not exists in the original MUIA known list or if
+	 * the copy remote original MUIA observer addition fails.
+	 */
+	public void registerKnownMuiaOriginalObserver(CopyMUIA knownCopyMUIA) throws RemoteException {
+		Boolean exists = false;
+		for( CopyMUIA knownMUIA : knownMUIAs ) {
+			if (knownMUIA.getName().equals(knownCopyMUIA.getName())) {
+				exists = true;
+				break;
+			}
+		}
+		
+		if( !exists ) {
+			throw new RemoteException();
+		}
+		
+		try {
+			knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver(this);
+		} catch (RemoteException | NullPointerException e) {
+			Logger.warning( "Failed to register the original MUIA like a original MUIA observer in the MUIA {"
+					+ ((MUIA)knownCopyMUIA).toString() + "}" );
+			throw new RemoteException();
+		}
 	}
 	
 	/**
