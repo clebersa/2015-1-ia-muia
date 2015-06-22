@@ -87,8 +87,7 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 							.registerTypeAdapter(MessageData.class,
 									new MessageData())
 							.create();
-					Packet packet = gson.fromJson(socketData,
-							Packet.class);
+					Packet packet = gson.fromJson(socketData, Packet.class);
 
 					Logger.debug(packet.toString());
 
