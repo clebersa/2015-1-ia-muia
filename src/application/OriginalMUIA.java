@@ -183,6 +183,11 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		return null;
 	}
 	
+	
+	public MUIA getMUIAByClient(Application destination) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+	
 	/**
 	 * Adds (register) a channel in the original MUIA.
 	 * If a channel with the same id of the channel to be registered is already registered in
