@@ -91,16 +91,8 @@ public abstract class MUIA extends Application implements Remote {
 	 * have a error.
 	 */
 	public Boolean addClient(Client client) {
-		Boolean exists = false;
-		for( Client alreadyAddedClient : clients ) {
-			if (alreadyAddedClient.getName().equals(client.getName())) {
-				exists = true;
-				break;
-			}
-		}
-
 		Boolean operation = false;
-		if (!exists) {
+		if (!hasClient(client)) {
 			operation = clients.add(client);
 		}
 
@@ -115,6 +107,23 @@ public abstract class MUIA extends Application implements Remote {
 	 */
 	public Boolean removeClient(Client client) {
 		return clients.remove(client);
+	}
+	
+	/**
+	 * Checks if a client is already registered in the known MUIAs.
+	 * @param client Client to find.
+	 * @return Boolean true if the client is already registered in the known 
+	 * MUIAs, or false, otherwise.
+	 */
+	public Boolean hasClient(Client client){
+		Boolean exists = false;
+		for( Client alreadyAddedClient : clients ) {
+			if (alreadyAddedClient.getName().equals(client.getName())) {
+				exists = true;
+				break;
+			}
+		}
+		return exists;
 	}
 	
 	/**

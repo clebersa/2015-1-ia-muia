@@ -1,11 +1,15 @@
 package packets;
 
 import application.Client;
+import application.Main;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
 import java.lang.reflect.Type;
 import java.net.UnknownHostException;
+import receiving.InvalidValueException;
+import receiving.MissingElementException;
 
 /**
  *
@@ -49,20 +53,48 @@ public class RegistrationHeader extends MessageHeader {
 	@Override
 	public MessageHeader deserialize(JsonElement json, Type typeOfT, 
 			JsonDeserializationContext context) throws JsonParseException {
+		
+		if (json.getAsJsonObject().get("register") == null) {
+			throw new MissingElementException("'register' not found!");
+		}
+		register = json.getAsJsonObject().get("register").getAsBoolean();
+		
 		try {
-			client = new Client(
-					json.getAsJsonObject().get("app-name").getAsString(),
-					json.getAsJsonObject().get("app-address").getAsString(),
-					json.getAsJsonObject().get("app-port").getAsInt());
+			if (json.getAsJsonObject().get("app-name") == null) {
+				throw new MissingElementException("'app-name' not found!");
+			}
+			if(register){
+				if (json.getAsJsonObject().get("app-address") == null) {
+					throw new MissingElementException("'app-address' not found!");
+				}
+				if (json.getAsJsonObject().get("app-port") == null) {
+					throw new MissingElementException("'app-port' not found!");
+				}
+				client = new Client(
+						json.getAsJsonObject().get("app-name").getAsString(),
+						json.getAsJsonObject().get("app-address").getAsString(),
+						json.getAsJsonObject().get("app-port").getAsInt());
+			} else {
+				client = Main.getSelf().getClientReference(
+						json.getAsJsonObject().get("app-name").getAsString());
+				if(client == null){
+					throw new InvalidValueException("client '" 
+							+ json.getAsJsonObject().get("app-name").getAsString()
+							+"' not found.");
+				}
+			}
 		} catch (UnknownHostException ex) {
-			throw new JsonParseException("Unable to create a Client "
-					+ "instance from the application parameters. Error: " 
+			throw new InvalidValueException("Unable to create client. Error: " 
 					+ ex.getMessage());
 		}
 		
-		register = json.getAsJsonObject().get("register").getAsBoolean();
-		
 		return this;
+	}
+
+	@Override
+	public JsonElement serialize(MessageHeader t, Type type, JsonSerializationContext jsc) {
+		//This classe will never be serialized.
+		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 }

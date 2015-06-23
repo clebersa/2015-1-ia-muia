@@ -1,5 +1,6 @@
 package operation;
 
+import java.util.HashMap;
 import packets.MessagePacket;
 
 /**
@@ -22,5 +23,5 @@ public abstract class Operation {
 		this.messagePacket = messagePacket;
 	}
 
-	public abstract int exec();
+	public abstract HashMap<String, Object> exec();
 }

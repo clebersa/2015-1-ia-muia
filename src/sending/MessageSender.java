@@ -28,12 +28,14 @@ import sending.interfaces.MessageSenderObserver;
  */
 public class MessageSender implements Runnable, MessageSenderObservable {
 
+	private final int id;
 	private final Packet packet;
 	private boolean sent;
 	private int retryAmount;
 	private MessageSenderObserver messageManager;
 
-	public MessageSender(MessagePacket messagePacket) {
+	public MessageSender(int id, MessagePacket messagePacket) {
+		this.id = id;
 		packet = new Packet(new ConnectionHeader(Main.getSelf()), messagePacket);
 		sent = false;
 		retryAmount = 0;
@@ -47,12 +49,12 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 			MessagingHeader messagingHeader = (MessagingHeader) packet
 					.getMessagePacket().getMessageHeader();
 			MUIA destinationMUIA = Main.getSelf().getMUIAByClient(
-					messagingHeader.getDestination()[0]);
+					messagingHeader.getDestinations()[0]);
 			Socket socket;
 			if (destinationMUIA == Main.getSelf()) {
 				socket = new Socket(
-						messagingHeader.getDestination()[0].getAddress(),
-						messagingHeader.getDestination()[0].getPort());
+						messagingHeader.getDestinations()[0].getAddress(),
+						messagingHeader.getDestinations()[0].getPort());
 			} else {
 				socket = new Socket(destinationMUIA.getAddress(),
 						destinationMUIA.getPort());
@@ -114,6 +116,10 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 		}
 		retryAmount++;
 		notifyAfterSend();
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public boolean isSent() {

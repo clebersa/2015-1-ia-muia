@@ -7,12 +7,14 @@ package receiving;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import common.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import operation.Operation;
 import operation.OperationFactory;
 import packets.ChannelCreatingHeader;
@@ -47,7 +49,8 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 		PrintWriter out = null;
 		BufferedReader in = null;
 
-		int result = 1;
+		HashMap<String, Object> result = new HashMap<>();
+		result.put("status", 1);
 
 		try {
 			out = new PrintWriter(connection.getOutputStream(), true);
@@ -65,7 +68,7 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 
 			if ("".equals(socketData)) {
 				Logger.debug("Stop signal received!");
-				result = 0;
+				result.put("status", 0);
 			} else {
 				Logger.debug("JSON Message received: " + socketData);
 				try {
@@ -97,19 +100,27 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 							packet.getMessagePacket());
 					result = operation.exec();
 				} catch (Exception ex) {
-					ex.printStackTrace();
+					if(ex instanceof MissingElementException){
+						result.put("status", 1);
+					} else if(ex instanceof InvalidValueException){
+						result.put("status", 2);
+					} else if(ex instanceof JsonParseException){
+						result.put("status", 3);
+					} else {
+						result.put("status", 9);
+					}
 					Logger.error("Unable to parse the element. Error: "
 							+ ex.getLocalizedMessage());
-					result = 1;
 				}
 			}
-
-			out.println(result);
+			
+			Gson gson = new Gson();
+			out.println(gson.toJson(result));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			Logger.error("Unable to receive the socket data! Error: "
 					+ ex.getMessage());
-			result = 10;
+			result.put("status", -1);
 		} finally {
 			if (out != null) {
 				out.close();
@@ -123,7 +134,7 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 				}
 			}
 		}
-		Logger.info("ConnectionHandler " + id + " result: " + result);
+		Logger.info("ConnectionHandler " + id + " result: " + result.get("status"));
 		notifyObservers();
 	}
 

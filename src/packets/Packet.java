@@ -8,6 +8,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
+import receiving.MissingElementException;
 
 /**
  *
@@ -50,21 +51,34 @@ public class Packet implements JsonDeserializer<Packet>, JsonSerializer<Packet> 
 	}
 
 	@Override
-	public Packet deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+	public Packet deserialize(JsonElement json, Type typeOfT, 
+			JsonDeserializationContext context) throws JsonParseException {
+		if (json.getAsJsonObject().get("connection-header") == null) {
+			throw new MissingElementException("'connection-header' not found!");
+		}
+
+		if (json.getAsJsonObject().get("message-packet") == null) {
+			throw new MissingElementException("'message-packet' not found!");
+		}
+
 		connectionHeader = new ConnectionHeader();
-		connectionHeader.deserialize(json.getAsJsonObject().get("connection-header"), typeOfT, context);
+		connectionHeader.deserialize(json.getAsJsonObject().get("connection-header"), 
+				typeOfT, context);
 
 		messagePacket = new MessagePacket();
-		messagePacket.deserialize(json.getAsJsonObject().get("message-packet"), typeOfT, context);
+		messagePacket.deserialize(json.getAsJsonObject().get("message-packet"), 
+				typeOfT, context);
+		
 		return this;
 	}
 
 	@Override
 	public JsonElement serialize(Packet t, Type type, JsonSerializationContext jsc) {
 		JsonObject jsonObject = new JsonObject();
-		//jsonObject.add("connection-header", connectionHeader.serialize());
-		//jsonObject.add("messagePacket", messagePacket.serialize());
 		
+		jsonObject.add("connection-header", connectionHeader.serialize(null, type, jsc));
+		jsonObject.add("message-packet", messagePacket.serialize(null, type, jsc));
+
 		return jsonObject;
 	}
 

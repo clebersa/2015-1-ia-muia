@@ -74,9 +74,13 @@ public class Channel implements ChannelObservable, Serializable {
 		return subscribers;
 	}
 	
-	public void publish(MessagePacket mp){
-		//Persist the message packet somewhere.
+	public int publish(MessagePacket mp){
+		int result = 41;
+		
+		//Persist the message packet at somewhere.
+		
 		new Thread(new MessageManager(mp)).start();
+		return 40;
 	}
 
 	public Boolean subscribeClient(Client client) {

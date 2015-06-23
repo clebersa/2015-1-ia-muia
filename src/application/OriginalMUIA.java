@@ -165,7 +165,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	
 	/**
 	 * Gets the {@link application.CopyMUIA} instance in the MUIA knownMuias list based in the MUIA name.
-	 * @param muiaName - String containing the name of the known MUIA to be searched.
+	 * @param muiaName String containing the name of the known MUIA to be searched.
 	 * @return {@link application.CopyMUIA} instance of searched MUIA name or {@value null} if the MUIA don't
 	 * knows the searched MUIA name.
 	 */

@@ -127,9 +127,11 @@ public class ConnectionManager implements Runnable, ConnectionHandlerObserver {
 	@Override
 	public synchronized void update(ConnectionHandler conHandler) {
 		if (activeConnections.remove(conHandler.getId()) != null) {
-			Logger.debug("ConnectionHandler " + conHandler.getId() + " removed from active connections list.");
+			Logger.debug("ConnectionHandler " + conHandler.getId() 
+					+ " removed from active connections list.");
 		} else {
-			Logger.warning("ConnectionHandler " + conHandler.getId() + " not found for removal.");
+			Logger.warning("ConnectionHandler " + conHandler.getId() 
+					+ " not found for removal.");
 		}
 	}
 }

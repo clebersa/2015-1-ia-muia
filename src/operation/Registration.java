@@ -1,10 +1,10 @@
 package operation;
 
-import application.Application;
 import application.Client;
-import application.MUIA;
 import application.Main;
+import application.OriginalMUIA;
 import common.Logger;
+import java.util.HashMap;
 import packets.MessagePacket;
 import packets.RegistrationHeader;
 
@@ -19,16 +19,35 @@ class Registration extends Operation {
 	}
 
 	@Override
-	public int exec() {
+	public HashMap<String, Object> exec() {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		
 		Logger.debug("Running registration operation...");
-		MUIA muia = Main.getSelf();
-		Client client = ((RegistrationHeader)messagePacket.getMessageHeader()).getClient();
-		int result;
-		if(muia.addClient(client))
-			result = 0;
-		else
-			result = 1;
-		Logger.debug("Registration operation result: " + result);
-		return result;
+		OriginalMUIA originalMUIA = Main.getSelf();
+		RegistrationHeader registrationHeader = ((RegistrationHeader) 
+				messagePacket.getMessageHeader());
+		Client client = registrationHeader.getClient();
+
+		if (registrationHeader.isRegister()) {
+			if (originalMUIA.hasClient(client)) {
+				resultMap.put("status", 11);
+			} else if (originalMUIA.addClient(client)) {
+				resultMap.put("status", 10);
+			} else {
+				resultMap.put("status", 13);
+			}
+		} else {
+			if (!originalMUIA.hasClient(client)) {
+				resultMap.put("status", 12);
+			} else if (originalMUIA.removeClient(client)) {
+				resultMap.put("status", 10);
+			} else {
+				resultMap.put("status", 13);
+			}
+		}
+		Logger.debug("Registration(" + registrationHeader.isRegister() 
+				+ ") operation result: " + resultMap.get("status"));
+		
+		return resultMap;
 	}
 }
