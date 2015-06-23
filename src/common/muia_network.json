@@ -1,8 +1,10 @@
-[
-	{
-		"muia_name" : "MUIA2",
-		"muia_ip_address" : "10.16.0.24",
-		"muia_server_port" : 2000,
-		"muia_registry_port" : 9998
-	}
-]
+{
+	"knownMUIAs" : [
+		{
+			"muia_name" : "MUIA2",
+			"muia_ip_address" : "10.16.0.24",
+			"muia_server_port" : 2000,
+			"muia_registry_port" : 9998
+		}
+	]
+}

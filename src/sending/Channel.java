@@ -16,7 +16,6 @@ import sending.interfaces.ChannelObserver;
  * @since 28/05/2015
  */
 public class Channel implements ChannelObservable, Serializable {
-
 	private static final long serialVersionUID = -3916512796973352410L;
 	private final String id;
 	private final String description;
@@ -36,10 +35,6 @@ public class Channel implements ChannelObservable, Serializable {
 		this.maxRetries = maxRetries;
 		this.retryInterval = retryInterval;
 		this.timeout = timeout;
-	}
-
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
 	}
 
 	public String getId() {
@@ -75,12 +70,12 @@ public class Channel implements ChannelObservable, Serializable {
 	}
 	
 	public int publish(MessagePacket mp){
-		int result = 41;
+		int result = 40;
 		
 		//Persist the message packet at somewhere.
 		
 		new Thread(new MessageManager(mp)).start();
-		return 40;
+		return result;
 	}
 
 	public Boolean subscribeClient(Client client) {

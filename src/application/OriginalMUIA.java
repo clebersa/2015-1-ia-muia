@@ -183,9 +183,31 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		return null;
 	}
 	
-	
-	public MUIA getMUIAByClient(Application destination) {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	/**
+	 * Gets the {@link application.MUIA} instance that contains the specified client.
+	 * @param destination - {@link application.Client} thats the MUIA need contains.
+	 * @return {@link application.MUIA} instance thats contains the specified {@link application.Client} or {@value 
+	 * null } if no one MUIA in the MUIA network contains the specified client. 
+	 */
+	public MUIA getMUIAByClient(Client destination) {
+		Client client = super.getClientReference(destination.getName());
+		
+		if( client != null ) {
+			return this;
+		}
+		
+		for( CopyMUIA knownMUIA : knownMUIAs ) {
+			if( !knownMUIA.isAlive() ) {
+				continue;
+			}
+			
+			client = knownMUIA.getClientReference(destination.getName());
+			if ( client != null ) {
+				return knownMUIA;
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
