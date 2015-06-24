@@ -1,17 +1,22 @@
 package sending;
 
+import application.Client;
 import application.MUIA;
 import application.Main;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+
 import common.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
+
 import packets.ChannelCreatingHeader;
 import packets.ConnectionHeader;
 import packets.MessageData;
@@ -45,11 +50,13 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 
 	@Override
 	public void run() {
+		System.out.println("Enviando mensagem...");
 		PrintWriter out = null;
 		BufferedReader in = null;
 		try {
 			MessagingHeader messagingHeader = (MessagingHeader) packet
 					.getMessagePacket().getMessageHeader();
+			
 			MUIA destinationMUIA = Main.getSelf().getMUIAByClient(
 					messagingHeader.getDestinations()[0]);
 			Socket socket;

@@ -21,6 +21,7 @@ public class MUIALoader implements Runnable{
 	public void run() {
 		loadMuiaNetwork();
 		loadDefaultChannels();
+		Logger.debug("MUIA loader finished!");
 	}
 	
 	@SuppressWarnings("unchecked")

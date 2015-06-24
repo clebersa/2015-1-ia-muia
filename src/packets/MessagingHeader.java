@@ -84,10 +84,10 @@ public class MessagingHeader extends MessageHeader {
 					+"' not found.");
 		}
 		
-		if (json.getAsJsonObject().get("destination") == null) {
+		if (json.getAsJsonObject().get("destinations") == null) {
 			throw new MissingElementException("'destination' not found!");
 		}
-		JsonArray jsonArray = json.getAsJsonObject().get("source").getAsJsonArray();
+		JsonArray jsonArray = json.getAsJsonObject().get("destinations").getAsJsonArray();
 		destinations = new Client[jsonArray.size()];
 		Client destination;
 		int found = 0;
@@ -122,7 +122,7 @@ public class MessagingHeader extends MessageHeader {
 			tempJsonObject.addProperty("destination", client.getName());
 			jsonArray.add(tempJsonObject.get("destination"));
 		}
-		jsonObject.add("destination", jsonArray);
+		jsonObject.add("destinations", jsonArray);
 		
 		return jsonObject;
 	}
