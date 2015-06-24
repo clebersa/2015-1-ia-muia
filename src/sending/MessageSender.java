@@ -4,6 +4,7 @@ import application.MUIA;
 import application.Main;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import common.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,7 +37,8 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 
 	public MessageSender(int id, MessagePacket messagePacket) {
 		this.id = id;
-		packet = new Packet(new ConnectionHeader(Main.getSelf()), messagePacket);
+		packet = new Packet(new ConnectionHeader(Main.getSelf().getName(), "muia"), 
+				messagePacket);
 		sent = false;
 		retryAmount = 0;
 	}
@@ -98,7 +100,7 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 			if ((Integer) result.get("status") == 41) {
 				sent = true;
 			}
-		} catch (Exception ex) {
+		} catch (IOException | JsonSyntaxException ex) {
 			Logger.error("Unable to stop ConnectionManager! Error: "
 					+ ex.getMessage());
 		} finally {
