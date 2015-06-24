@@ -9,18 +9,28 @@
 	</head>
 	
 	<body>
-		<table>
+		<table cellspacing="5px">
 			<tr>
-				<td colspan="2">
-					<textarea id="txtAChat" readonly style="width: 100%; height: 200px;"></textarea>
+				<td>
+					<input type="button" id="startServer" value="Iniciar servidor" style="width: 100%;">
+				</td>
+				<td>
+					<input type="button" id="stopServer" value="Finalizar servidor" style="width: 100%;">
 				</td>
 			</tr>
 			<tr>
+				<td colspan="2">
+					<textarea id="txtAChat" style="width: -webkit-calc(100% - 6px); width: -moz-calc(100% - 6px); width: calc(100% - 6px); height: 200px;" readonly></textarea>
+				</td>
+			</tr>
+			
+			 
+			<tr>
 				<td>
-					<input type="text" id="txtSendMessage"/>
+					<input type="text" id="txtSendMessage" style="width: 100%;"/>
 				</td>
 				<td>
-					<input type="button" id="btnSend" value="Enviar mensagem">
+					<input type="button" id="btnSend" value="Enviar mensagem" style="width: 100%;">
 				</td>
 			</tr>
 		</table>

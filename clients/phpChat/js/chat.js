@@ -1,4 +1,12 @@
 $( document ).ready( function() {
+	$("#startServer").click( function( e ) {
+		startServer();
+	});
+	
+	$("#stopServer").click( function( e ) {
+		stopServer();
+	});
+	
 	$("#btnSend").click( function( e ) {
 		var base64Message = btoa($("#txtSendMessage").val());
 		var add = $("#txtAChat").val();
@@ -24,6 +32,24 @@ $( document ).ready( function() {
 	
 	setInterval(getChatMessages, 1000);
 });
+
+function startServer() {
+	$.ajax({
+		url: 'server.php',
+		type: 'POST',
+		cache: false,
+		success: function(msg) {}
+	});
+}
+
+function stopServer() {
+	$.ajax({
+		url: 'serverShutdown.php',
+		type: 'POST',
+		cache: false,
+		success: function(msg) {}
+	});
+}
 
 function sendMessage(base64Message) {
 	inputData = {

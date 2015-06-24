@@ -46,18 +46,18 @@
 	socket_connect($socket, $config['muia']['ip_address'], $config['muia']['port']);
 	socket_write($socket, $mensagem, $length);
 	$response = socket_read($socket, 1024);
-    socket_close($socket);
-    
-    $mensagem = json_encode($channelSubscribePacket);
+	socket_close($socket);
+	
+	$mensagem = json_encode($channelSubscribePacket);
 	$length = strlen($mensagem);
 	
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 	socket_connect($socket, $config['muia']['ip_address'], $config['muia']['port']);
 	socket_write($socket, $mensagem, $length);
 	$response = socket_read($socket, 1024);
-    socket_close($socket);
-    
-    // Start server
+	socket_close($socket);
+	
+	// Start server
 	set_time_limit (0);
 	
 	$sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -82,7 +82,7 @@
 			default:
 				$result = array("status" => 0);
 				$writeMessages = json_encode($result);
-                                $length = strlen($writeMessages);
+				$length = strlen($writeMessages);
 				socket_write($client, $writeMessages, $length);
 				$receivedMessages[] = json_decode($input, true);
 				break;
