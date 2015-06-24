@@ -8,6 +8,10 @@ public class Client extends Application {
 	public Client(String name, String address, int port) throws UnknownHostException {
 		super(name, address, port);
 	}
+	
+	public Client(String name){
+		super(name);
+	}
 
 	@Override
 	public String toString() {

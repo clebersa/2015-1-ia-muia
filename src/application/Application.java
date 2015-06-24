@@ -22,6 +22,10 @@ public abstract class Application implements Serializable {
 		this.address = InetAddress.getByName(address);
 		this.port = port;
 	}
+	
+	public Application(String name){
+		this.name = name;
+	}
 
 	public String getName() {
 		return name;

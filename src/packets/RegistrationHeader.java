@@ -78,9 +78,8 @@ public class RegistrationHeader extends MessageHeader {
 				client = Main.getSelf().getClientReference(
 						json.getAsJsonObject().get("app-name").getAsString());
 				if(client == null){
-					throw new InvalidValueException("client '" 
-							+ json.getAsJsonObject().get("app-name").getAsString()
-							+"' not found.");
+					client = new Client(json.getAsJsonObject().get("app-name")
+							.getAsString());
 				}
 			}
 		} catch (UnknownHostException ex) {
