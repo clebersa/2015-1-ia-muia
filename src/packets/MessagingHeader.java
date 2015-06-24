@@ -84,26 +84,25 @@ public class MessagingHeader extends MessageHeader {
 					+"' not found.");
 		}
 		
-		if (json.getAsJsonObject().get("destinations") == null) {
-			throw new MissingElementException("'destination' not found!");
-		}
-		JsonArray jsonArray = json.getAsJsonObject().get("destinations").getAsJsonArray();
-		destinations = new Client[jsonArray.size()];
-		Client destination;
-		int found = 0;
-		for(int index = 0; index < jsonArray.size(); index++){
-			destination = Main.getSelf().getClientReference(
-					jsonArray.get(index).getAsString());
-			if(destination == null){
-				Logger.warning("Destination '" + jsonArray.get(index).getAsString()
-						+ "' not found.");
-			}else{
-				found++;
-				destinations[index] = destination;
+		if (json.getAsJsonObject().get("destinations") != null) {
+			JsonArray jsonArray = json.getAsJsonObject().get("destinations").getAsJsonArray();
+			destinations = new Client[jsonArray.size()];
+			Client destination;
+			int found = 0;
+			for(int index = 0; index < jsonArray.size(); index++){
+				destination = Main.getSelf().getClientReference(
+						jsonArray.get(index).getAsString());
+				if(destination == null){
+					Logger.warning("Destination '" + jsonArray.get(index).getAsString()
+							+ "' not found.");
+				}else{
+					found++;
+					destinations[index] = destination;
+				}
 			}
-		}
-		if(found == 0){
-			throw new InvalidValueException("No one destination found.");
+			if(found == 0 && jsonArray.size() > 0){
+				throw new InvalidValueException("No one destination found.");
+			}
 		}
 		
 		return this;
