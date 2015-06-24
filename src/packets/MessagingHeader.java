@@ -103,6 +103,8 @@ public class MessagingHeader extends MessageHeader {
 			if(found == 0 && jsonArray.size() > 0){
 				throw new InvalidValueException("No one destination found.");
 			}
+		}else{
+			destinations = new Client[0];
 		}
 		
 		return this;

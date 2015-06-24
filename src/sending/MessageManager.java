@@ -32,10 +32,14 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 						originalMH.getChannel().getSubscribers().get(index).getName()))
 					continue;
 				
+				Object[] objectsList = originalMH.getChannel().getSubscribers()
+						.subList(index, index + 1).toArray();
+				Client[] clients = new Client[objectsList.length];
+				for(int index2 = 0; index2 < objectsList.length; index2++){
+					clients[index2] = (Client) objectsList[index2];
+				}
 				newMH = new MessagingHeader(originalMH.getChannel(),
-						originalMH.getSource(),
-						(Client[]) originalMH.getChannel().getSubscribers()
-						.subList(index, index).toArray());
+						originalMH.getSource(), clients);
 
 				messageSenders.add(new MessageSender(index, new MessagePacket(
 						newMH, messagePacket.getMessageData())));
@@ -52,7 +56,7 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 				newMH = new MessagingHeader(
 						originalMH.getChannel(),
 						originalMH.getSource(),
-						Arrays.copyOfRange(originalMH.getDestinations(), index, index));
+						Arrays.copyOfRange(originalMH.getDestinations(), index, index + 1));
 
 				messageSenders.add(new MessageSender(index, new MessagePacket(
 						newMH, messagePacket.getMessageData())));
