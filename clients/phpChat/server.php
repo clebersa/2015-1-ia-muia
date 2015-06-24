@@ -80,10 +80,13 @@
 				$receivedMessages = array();
 				break;
 			default:
+				$result = array("status" => 0);
+				$writeMessages = json_encode($result);
+                                $length = strlen($writeMessages);
+				socket_write($client, $writeMessages, $length);
 				$receivedMessages[] = json_decode($input, true);
 				break;
 		}
-		
 		socket_close($client);
 	}
 	socket_close($sock);

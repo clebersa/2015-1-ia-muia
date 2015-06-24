@@ -17,8 +17,7 @@
 			"header-type" => "messaging",
 			"header-data" => array(
 				"channel" => "default",
-				"source" => $config['client']['name'],
-				"destinations" => array("app2")
+				"source" => $config['client']['name']
 			),
 			"message-data" => array(
 				"value" => $messageValue
