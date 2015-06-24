@@ -332,7 +332,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		}
 		
 		try {
-			knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver(this);
+			knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver((OriginalMUIAObserver) selfRemoteReference);
 		} catch (RemoteException | NullPointerException e) {
 			Logger.warning( "Failed to register the original MUIA like a original MUIA observer in the MUIA {"
 					+ ((MUIA)knownCopyMUIA).toString() + "}" );
@@ -448,8 +448,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 				updateObserverChannelAllData(observer);
 			} catch (UnableToUpdateObserverException e) {
 				updateObsOperation = false;
-				Logger.error( "Unable to send all channels and update the observer {"
-						+ ((MUIA)observer).toString() + "}" );
+				Logger.error( "Unable to send all channels and update the observer" );
 			}
 			
 			if( updateObsOperation ) {
@@ -474,7 +473,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				observer.updateChannelAddition(serializedChannel);
 			} catch (RemoteException e) {
-				Logger.error( "Cannot update channel addition in the observer {" + ((MUIA)observer).toString() + "}" );
+				Logger.error( "Cannot update channel addition in the observer" );
 			}
 		}
 	}
@@ -485,7 +484,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				observer.updateChannelRemoval(channel.getId());
 			} catch (RemoteException e) {
-				Logger.error( "Cannot update channel removal in the observer {" + ((MUIA)observer).toString() + "}" );
+				Logger.error( "Cannot update channel removal in the observer" );
 			}
 		}
 	}
@@ -496,8 +495,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try{
 				observer.updateChannelSubscribe( channel.getId(), client.getName() );
 			} catch(RemoteException e) {
-				Logger.error( "Cannot update channel subscribe in the observer {" 
-						+ ((MUIA)observer).toString() + "}" );
+				Logger.error( "Cannot update channel subscribe in the observer" );
 			}
 		}
 	}
@@ -508,8 +506,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try{
 				observer.updateChannelUnsubscribe( channel.getId(), client.getName() );
 			} catch(RemoteException e) {
-				Logger.error( "Cannot update channel unsubscribe in the observer {"
-						+ ((MUIA)observer).toString() + "}" );
+				Logger.error( "Cannot update channel unsubscribe in the observer" );
 			}
 		}
 	}
