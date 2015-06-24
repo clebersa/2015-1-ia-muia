@@ -8,13 +8,15 @@ package receiving;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+
 import common.Logger;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
+
 import operation.Operation;
 import operation.OperationFactory;
 import packets.ChannelCreatingHeader;
@@ -47,23 +49,36 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 	public void run() {
 		String socketData = "";
 		PrintWriter out = null;
-		BufferedReader in = null;
+		InputStream in = null;
 
 		HashMap<String, Object> result = new HashMap<>();
 		result.put("status", 1);
 
 		try {
+			in = connection.getInputStream();
+			
 			out = new PrintWriter(connection.getOutputStream(), true);
-			in = new BufferedReader(
-					new InputStreamReader(connection.getInputStream()));
 			Logger.debug("Receiving data in the ConnectionHandler " + id
 					+ "...");
-
-			String line;
-			while ((line = in.readLine()) != null) {
-				Logger.debug("Message Line: \"" + line + "\"");
-				socketData += line;
+			
+			StringBuilder receivedData = new StringBuilder();
+			byte[] buff = new byte[1024];
+			int k = -1;
+			String tmpString;
+			while((k = in.read(buff, 0, buff.length)) > -1) {
+				tmpString = new String(buff).replaceAll("\u0000.*", "");
+				receivedData.append(tmpString);
+				buff = new byte[buff.length];
+				
+				tmpString = tmpString.replaceAll(System.lineSeparator(), "");
+				if( buff.length != k || buff.length != tmpString.length() ) {
+					break;
+				}
 			}
+			
+			Logger.debug("Message Line: \"" + receivedData.toString() + "\"");
+			socketData = receivedData.toString();
+			
 			connection.shutdownInput();
 
 			if ("".equals(socketData)) {
