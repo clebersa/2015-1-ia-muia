@@ -28,6 +28,10 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 		MessagingHeader newMH;
 		if (originalMH.getDestinations().length == 0) {
 			for (int index = 0; index < originalMH.getChannel().getSubscribers().size(); index++) {
+				if(originalMH.getSource().getName().equals(
+						originalMH.getChannel().getSubscribers().get(index).getName()))
+					continue;
+				
 				newMH = new MessagingHeader(originalMH.getChannel(),
 						originalMH.getSource(),
 						(Client[]) originalMH.getChannel().getSubscribers()
@@ -42,6 +46,9 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 			}
 		} else {
 			for (int index = 0; index < originalMH.getDestinations().length; index++) {
+				if(originalMH.getSource().getName().equals(
+						originalMH.getDestinations()[index].getName()))
+					continue;
 				newMH = new MessagingHeader(
 						originalMH.getChannel(),
 						originalMH.getSource(),
