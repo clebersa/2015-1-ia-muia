@@ -93,7 +93,7 @@ public class ChannelCreatingHeader extends ChannelingHeader {
 		
 		description = json.getAsJsonObject().get("description").getAsString();
 		if("".equals(description)){
-			throw new InvalidValueException("empty description not found.");
+			throw new InvalidValueException("empty channel description found.");
 		}
 		
 		maxSubscribers = json.getAsJsonObject().get("max-subscribers").getAsInt();
