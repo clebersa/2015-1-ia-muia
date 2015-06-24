@@ -27,24 +27,12 @@ public abstract class Application implements Serializable {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public InetAddress getAddress() {
 		return address;
 	}
-
-	public void setAddress(InetAddress address) {
-		this.address = address;
-	}
-
+	
 	public Integer getPort() {
 		return port;
-	}
-
-	public void setPort(Integer port) {
-		this.port = port;
 	}
 
 	@Override

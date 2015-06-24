@@ -377,6 +377,14 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			} catch (RemoteException e) {
 				throw new UnableToUpdateObserverException();
 			}
+			
+			for( Client channelClient : channel.getSubscribers() ) {
+				try{
+					observer.updateChannelSubscribe( channel.getId(), channelClient.getName() );
+				} catch(RemoteException e) {
+					throw new UnableToUpdateObserverException();
+				}
+			}
 		}
 	}
 	
