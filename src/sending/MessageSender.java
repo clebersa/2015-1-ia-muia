@@ -10,9 +10,8 @@ import com.google.gson.JsonSyntaxException;
 
 import common.Logger;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.HashMap;
@@ -50,9 +49,8 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 
 	@Override
 	public void run() {
-		System.out.println("Enviando mensagem...");
 		PrintWriter out = null;
-		BufferedReader in = null;
+		InputStream in = null;
 		try {
 			MessagingHeader messagingHeader = (MessagingHeader) packet
 					.getMessagePacket().getMessageHeader();
@@ -70,8 +68,7 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 			}
 
 			out = new PrintWriter(socket.getOutputStream(), true);
-			in = new BufferedReader(
-					new InputStreamReader(socket.getInputStream()));
+			in = socket.getInputStream();
 
 			Gson gson = new GsonBuilder()
 					.registerTypeAdapter(Packet.class,
@@ -95,13 +92,24 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 			socket.shutdownOutput();
 
 			Logger.debug("Waiting status...");
-			String resultJson = "", line;
-			while ((line = in.readLine()) != null) {
-				Logger.debug("Result Line: \"" + line + "\"");
-				resultJson += line;
+			StringBuilder receivedData = new StringBuilder();
+			byte[] buff = new byte[1024];
+			int readBytes = -1;
+			String tmpString;
+			while((readBytes = in.read(buff, 0, buff.length)) > -1) {
+				tmpString = new String(buff).replaceAll("\u0000.*", "");
+				receivedData.append(tmpString);
+				buff = new byte[buff.length];
+				
+				tmpString = tmpString.replaceAll(System.lineSeparator(), "");
+				if( buff.length != readBytes || buff.length != tmpString.length() ) {
+					break;
+				}
 			}
+			Logger.debug("Result Line: \"" + receivedData.toString() + "\"");
 
-			HashMap<String, Object> result = gson.fromJson(resultJson, HashMap.class);
+			HashMap<String, Object> result = gson.fromJson(receivedData.toString(), 
+					HashMap.class);
 			result.put("status", ((Number) result.get("status")).intValue());
 			Logger.info("Sending operation result: " + result.get("status"));
 			if ((Integer) result.get("status") == 41) {
@@ -137,6 +145,16 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 
 	public int getRetryAmount() {
 		return retryAmount;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null || !(obj instanceof MessageSender) 
+				|| ((MessageSender)obj).getId() != this.id){
+			return false;
+		}else{
+			return true;
+		}
 	}
 
 	@Override

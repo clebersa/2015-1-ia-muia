@@ -27,7 +27,8 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 		MessagingHeader originalMH = (MessagingHeader) messagePacket.getMessageHeader();
 		MessagingHeader newMH;
 		if (originalMH.getDestinations().length == 0) {
-			for (int index = 0; index < originalMH.getChannel().getSubscribers().size(); index++) {
+			for (int index = 0, messageSenderIndex = 0; 
+					index < originalMH.getChannel().getSubscribers().size(); index++) {
 				if(originalMH.getSource().getName().equals(
 						originalMH.getChannel().getSubscribers().get(index).getName()))
 					continue;
@@ -44,12 +45,14 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 				messageSenders.add(new MessageSender(index, new MessagePacket(
 						newMH, messagePacket.getMessageData())));
 
-				messageSenders.get(index).addObserver(this);
+				messageSenders.get(messageSenderIndex).addObserver(this);
 
-				new Thread(messageSenders.get(index)).start();
+				new Thread(messageSenders.get(messageSenderIndex)).start();
+				messageSenderIndex++;
 			}
 		} else {
-			for (int index = 0; index < originalMH.getDestinations().length; index++) {
+			for (int index = 0, messageSenderIndex = 0; 
+					index < originalMH.getDestinations().length; index++) {
 				if(originalMH.getSource().getName().equals(
 						originalMH.getDestinations()[index].getName()))
 					continue;
@@ -61,9 +64,10 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 				messageSenders.add(new MessageSender(index, new MessagePacket(
 						newMH, messagePacket.getMessageData())));
 
-				messageSenders.get(index).addObserver(this);
+				messageSenders.get(messageSenderIndex).addObserver(this);
 
-				new Thread(messageSenders.get(index)).start();
+				new Thread(messageSenders.get(messageSenderIndex)).start();
+				messageSenderIndex++;
 			}
 		}
 
@@ -92,7 +96,7 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 							+ " relaunched.");
 		} else {
 			synchronized (messageSenders) {
-				if (messageSenders.remove(messageSender.getId()) != null) {
+				if (messageSenders.remove(messageSender)) {
 					Logger.debug("Message Sender " + messageSender.getId()
 							+ " finalized.");
 				} else {

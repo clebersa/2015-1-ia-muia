@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package receiving;
 
 import com.google.gson.Gson;
@@ -63,15 +58,15 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 			
 			StringBuilder receivedData = new StringBuilder();
 			byte[] buff = new byte[1024];
-			int k = -1;
+			int readBytes = -1;
 			String tmpString;
-			while((k = in.read(buff, 0, buff.length)) > -1) {
+			while((readBytes = in.read(buff, 0, buff.length)) > -1) {
 				tmpString = new String(buff).replaceAll("\u0000.*", "");
 				receivedData.append(tmpString);
 				buff = new byte[buff.length];
 				
 				tmpString = tmpString.replaceAll(System.lineSeparator(), "");
-				if( buff.length != k || buff.length != tmpString.length() ) {
+				if( buff.length != readBytes || buff.length != tmpString.length() ) {
 					break;
 				}
 			}
