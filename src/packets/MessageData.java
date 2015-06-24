@@ -11,6 +11,7 @@ import common.Logger;
 import java.lang.reflect.Type;
 import javax.xml.bind.DatatypeConverter;
 import receiving.InvalidValueException;
+import receiving.MissingElementException;
 
 /**
  *
@@ -39,9 +40,8 @@ public class MessageData implements JsonDeserializer<MessageData>,
 	@Override
 	public MessageData deserialize(JsonElement json, Type typeOfT,
 			JsonDeserializationContext context) throws JsonParseException {
-		if(json == null || json.getAsJsonObject().get("value") == null){
-			Logger.debug("Null message data received.");
-			return null;
+		if(json.getAsJsonObject().get("value") == null){
+			throw new MissingElementException("'value' not found!");
 		}
 		String valueString = json.getAsJsonObject().get("value").getAsString();
 		try{

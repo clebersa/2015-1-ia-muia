@@ -1,12 +1,12 @@
 {
-	"channels" : [
-		{
-			"channel_id" : "default",
-			"channel_description" : "Default channel of MUIA",
-			"channel_max_subscribers" : -1,
-			"channel_max_retries" : -1,
-			"channel_retry_interval" : 60000,
-			"channel_send_timeout" : 30000
-		}
-	]
+    "channels": [
+        {
+            "channel_id": "default",
+            "channel_description": "Default channel of MUIA",
+            "channel_max_subscribers": -1,
+            "channel_max_retries": -1,
+            "channel_retry_interval": 60000,
+            "channel_send_timeout": 30000
+        }
+    ]
 }

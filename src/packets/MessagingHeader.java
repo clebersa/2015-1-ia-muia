@@ -62,10 +62,11 @@ public class MessagingHeader extends MessageHeader {
 	public MessageHeader deserialize(JsonElement json, Type typeOfT, 
 			JsonDeserializationContext context) throws JsonParseException {
 		if (json.getAsJsonObject().get("channel") == null) {
-			throw new MissingElementException("'channel' not found!");
+			channel = Main.getSelf().getChannelReference("default");
+		} else {
+			channel = Main.getSelf().getChannelReference(
+					json.getAsJsonObject().get("channel").getAsString());
 		}
-		channel = Main.getSelf().getChannelReference(
-				json.getAsJsonObject().get("channel").getAsString());
 		if(channel == null){
 			throw new InvalidValueException("channel '" 
 					+ json.getAsJsonObject().get("channel").getAsString()

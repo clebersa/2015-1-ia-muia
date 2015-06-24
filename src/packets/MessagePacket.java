@@ -54,6 +54,7 @@ public class MessagePacket implements JsonDeserializer<MessagePacket>,
 	@Override
 	public MessagePacket deserialize(JsonElement json, Type typeOfT, 
 			JsonDeserializationContext context) throws JsonParseException {
+		boolean needMessageData = false;
 
 		if (json.getAsJsonObject().get("header-type") == null) {
 			throw new MissingElementException("'header-type' not found!");
@@ -71,6 +72,7 @@ public class MessagePacket implements JsonDeserializer<MessagePacket>,
 				break;
 			case "messaging":
 				messageHeader = new MessagingHeader();
+				needMessageData = true;
 				break;
 			default:
 				throw new InvalidValueException("Invalid value for 'header-type'.");
@@ -82,12 +84,14 @@ public class MessagePacket implements JsonDeserializer<MessagePacket>,
 		messageHeader.deserialize(json.getAsJsonObject().get("header-data"),
 				typeOfT, context);
 		
-		if (json.getAsJsonObject().get("message-data") == null) {
-			throw new MissingElementException("'message-data' not found!");
+		if(needMessageData){
+			if (json.getAsJsonObject().get("message-data") == null) {
+				throw new MissingElementException("'message-data' not found!");
+			}
+			messageData = new MessageData();
+			messageData = messageData.deserialize(json.getAsJsonObject().get("message-data"),
+					typeOfT, context);
 		}
-		messageData = new MessageData();
-		messageData = messageData.deserialize(json.getAsJsonObject().get("message-data"),
-				typeOfT, context);
 		return this;
 	}
 
