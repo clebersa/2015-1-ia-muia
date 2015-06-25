@@ -102,9 +102,6 @@ public class ChannelCreatingHeader extends ChannelingHeader {
 		}
 		
 		maxRetries = json.getAsJsonObject().get("max-retries").getAsInt();
-		if(maxRetries < 0){
-			throw new InvalidValueException("negative max-retries.");
-		}
 		
 		retryInterval = json.getAsJsonObject().get("retry-interval").getAsLong();
 		if(retryInterval < 0){

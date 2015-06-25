@@ -84,7 +84,9 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 	@Override
 	public void update(MessageSender messageSender) {
 		Channel channel = ((MessagingHeader) messagePacket.getMessageHeader()).getChannel();
-		if (!messageSender.isSent() && messageSender.getRetryAmount() < channel.getMaxRetries()) {
+		if (!messageSender.isSent() 
+				&& (channel.getMaxRetries() < 0 
+				|| messageSender.getRetryAmount() < channel.getMaxRetries())) {
 			try {
 				Thread.sleep((long) channel.getRetryInterval());
 			} catch (InterruptedException ex) {

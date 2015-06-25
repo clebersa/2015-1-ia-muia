@@ -1,6 +1,5 @@
 package sending;
 
-import application.Client;
 import application.MUIA;
 import application.Main;
 
@@ -12,8 +11,11 @@ import common.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 
 import packets.ChannelCreatingHeader;
@@ -37,7 +39,7 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 	private final Packet packet;
 	private boolean sent;
 	private int retryAmount;
-	private MessageSenderObserver messageManager;
+	private MessageSenderObserver messageSenderObserver;
 
 	public MessageSender(int id, MessagePacket messagePacket) {
 		this.id = id;
@@ -57,16 +59,21 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 			
 			MUIA destinationMUIA = Main.getSelf().getMUIAByClient(
 					messagingHeader.getDestinations()[0]);
-			Socket socket;
+			Socket socket = new Socket();
 			if (destinationMUIA == Main.getSelf()) {
-				socket = new Socket(
+				socket.connect(new InetSocketAddress(
 						messagingHeader.getDestinations()[0].getAddress(),
-						messagingHeader.getDestinations()[0].getPort());
+						messagingHeader.getDestinations()[0].getPort()),
+						(int) messagingHeader.getChannel().getTimeout());
 			} else {
-				socket = new Socket(destinationMUIA.getAddress(),
-						destinationMUIA.getPort());
+				socket.connect(new InetSocketAddress(
+						messagingHeader.getDestinations()[0].getAddress(),
+						messagingHeader.getDestinations()[0].getPort()),
+						(int) messagingHeader.getChannel().getTimeout());
 			}
 
+			socket.setSoTimeout((int) messagingHeader.getChannel().getTimeout());
+			
 			out = new PrintWriter(socket.getOutputStream(), true);
 			in = socket.getInputStream();
 
@@ -159,19 +166,19 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 
 	@Override
 	public void notifyAfterSend() {
-		messageManager.update(this);
+		messageSenderObserver.update(this);
 	}
 
 	@Override
 	public boolean addObserver(MessageSenderObserver mso) {
-		messageManager = mso;
+		messageSenderObserver = mso;
 		return true;
 	}
 
 	@Override
 	public boolean removeObserver(MessageSenderObserver mso) {
-		if (messageManager != null && messageManager.equals(mso)) {
-			messageManager = null;
+		if (messageSenderObserver != null && messageSenderObserver.equals(mso)) {
+			messageSenderObserver = null;
 			return true;
 		} else {
 			return false;
