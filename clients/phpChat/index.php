@@ -3,36 +3,97 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>APP Cliente - MUIA</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css"/>
 		<script language="javascript" type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
 		<script language="javascript" type="text/javascript" src="js/jquery-migrate-1.2.1.min.js"></script>
 		<script language="javascript" type="text/javascript" src="js/chat.js"></script>
 	</head>
 	
 	<body>
-		<table cellspacing="5px">
-			<tr>
-				<td>
-					<input type="button" id="startServer" value="Iniciar servidor" style="width: 100%;">
-				</td>
-				<td>
-					<input type="button" id="stopServer" value="Finalizar servidor" style="width: 100%;">
-				</td>
-			</tr>
-			<tr>
-				<td colspan="2">
-					<textarea id="txtAChat" style="width: -webkit-calc(100% - 6px); width: -moz-calc(100% - 6px); width: calc(100% - 6px); height: 200px;" readonly></textarea>
-				</td>
-			</tr>
+		<div id="wrapper" class="float_adjustment">
+			<div class="container float_left">
+				<span class="title">MUIA CHAT</span>
+				<div class="content">
+					<table class="tbl_chat">
+						<tr>
+							<td>
+								<input type="button" name="btnStartServer" value="Iniciar servidor">
+							</td>
+							<td>
+								<input type="button" name="btnStopServer" value="Servidor finalizado" disabled="false">
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<textarea name="txtAChat" readonly></textarea>
+							</td>
+						</tr>
+						 
+						<tr>
+							<td>
+								<input type="text" name="txtSendMessage"/>
+							</td>
+							<td>
+								<input type="button" name="btnSend" value="Enviar mensagem">
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
 			
-			 
-			<tr>
-				<td>
-					<input type="text" id="txtSendMessage" style="width: 100%;"/>
-				</td>
-				<td>
-					<input type="button" id="btnSend" value="Enviar mensagem" style="width: 100%;">
-				</td>
-			</tr>
-		</table>
+			<div class="float_right">
+				<div class="container">
+					<span class="title">Configurações</span>
+					<div class="content">
+						<table class="tbl_config">
+							<tr>
+								<td colspan="2">
+									<input type="button" name="btnRegisterClient" value="Registrar no MUIA">
+								</td>
+							</tr>
+							<tr>
+								<td><input type="text" name="inpChannelSubscribeId" placeholder="Identificador do canal"></td>
+								<td><input type="button" name="btnSubscribeIntoChannel" value="Inscrever no canal"></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				
+				<div class="container">
+					<span class="title">Criar Canal</span>
+					<div class="content">
+						<table class="tbl_config">
+							<tr>
+								<td>
+									<input type="number" name="inpMaxSubscribers" min="0" step="1" placeholder="Máximo de inscritos"/>
+								</td>
+								<td>
+									<input type="number" name="inpMaxRetries" min="-1" step="1" placeholder="Tentativas de reenvio"/>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<input type="number" name="inpRetryInterval" min="0" step="1000" placeholder="Intervalo de reenvio (ms)"/>
+								</td>
+								<td>
+									<input type="number" name="inpSendTimeout" min="0" step="1000" placeholder="Timeout de envio (ms)"/>
+								</td>
+							</tr>
+							<tr>
+								<td colspan='2'>
+									<textarea name="txtAChannelDescription" placeholder="Descrição do canal"></textarea>
+								</td>
+							</tr>
+							<tr>
+								<td colspan='2'>
+									<input type="button" name="btnCreateChannel" value="Criar canal">
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 	</body>
 </html>

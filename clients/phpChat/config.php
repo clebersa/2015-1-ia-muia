@@ -6,7 +6,7 @@
 		),
 		"client" => array(
 			"ip_address" => "127.0.0.1",
-			"port" => 9950,
+			"port" => 9952,
 			"name" => "bruno-app"
 		)
 	);
