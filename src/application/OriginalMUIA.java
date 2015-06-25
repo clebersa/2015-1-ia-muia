@@ -303,8 +303,8 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				muia.getRemoteOriginalMUIA().removeOriginalMUIAObserver(this);
 			} catch (RemoteException | NullPointerException e) {
-				Logger.warning( "Cannot unregister the original MUIA from the original MUIA observer list of MUIA {"
-						+ muia + "}");
+				Logger.warning( "Cannot unregister the original MUIA from the original MUIA observer list of MUIA \""
+						+ muia.getName() + "\"");
 			}
 		}
 
@@ -334,8 +334,8 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		try {
 			knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver((OriginalMUIAObserver) selfRemoteReference);
 		} catch (RemoteException | NullPointerException e) {
-			Logger.warning( "Failed to register the original MUIA like a original MUIA observer in the MUIA {"
-					+ ((MUIA)knownCopyMUIA).toString() + "}" );
+			Logger.warning( "Failed to register the original MUIA like a original MUIA observer in the MUIA \""
+					+ ((MUIA)knownCopyMUIA).getName() + "\"" );
 			throw new RemoteException();
 		}
 	}
@@ -397,8 +397,8 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 				updateObserverClientAllData(observer);
 			} catch (UnableToUpdateObserverException e) {
 				updateObsOperation = false;
-				Logger.error( "Unable to send all clients and update the observer {"
-						+ ((MUIA)observer).toString() + "}" );
+				Logger.error( "Unable to send all clients and update the observer \""
+						+ ((MUIA)observer).getName() + "\"" );
 			}
 			
 			if( updateObsOperation ) {
@@ -423,7 +423,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				observer.updateClientAddition(serializedClient);
 			} catch (RemoteException e) {
-				Logger.error( "Cannot update client addition in the observer {" + ((MUIA)observer).toString() + "}" );
+				Logger.error( "Cannot update client addition in the observer \"" + ((MUIA)observer).getName() + "\"" );
 			}
 		}
 	}
@@ -434,7 +434,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				observer.updateClientRemoval(client.getName());
 			} catch (RemoteException e) {
-				Logger.error( "Cannot update client removal in the observer {" + ((MUIA)observer).toString() + "}" );
+				Logger.error( "Cannot update client removal in the observer \"" + ((MUIA)observer).getName() + "\"" );
 			}
 		}
 	}
@@ -517,7 +517,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		Channel channel = sh.deserialize(serializedChannel);
 		addChannel(channel);
 		
-		Logger.debug("Channel " + channel.getId() + " added in the MUIA {" + this + "}");
+		Logger.debug("Channel " + channel.getId() + " added in the MUIA \"" + this.getName() + "\"");
 	}
 
 	@Override

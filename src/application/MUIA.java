@@ -60,7 +60,7 @@ public abstract class MUIA extends Application implements Remote {
 		try {
 			selfRemoteReference = UnicastRemoteObject.exportObject(this, 0);
 		} catch (RemoteException e) {
-			Logger.error("Unable to export remote reference of MUIA {" + this + "}. Error: " + e.getMessage());
+			Logger.error("Unable to export remote reference of MUIA \"" + this.getName() + "\". Error: " + e.getMessage());
 			throw new UnableToCreateMUIAException();
 		}
 	}

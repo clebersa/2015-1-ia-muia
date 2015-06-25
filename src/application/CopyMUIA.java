@@ -44,7 +44,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 		try {
 			synchronizeCopyToOriginalMUIA();
 		} catch (RemoteException | NotBoundException e) {
-			Logger.warning("Unable to synchronyze MUIA copy {" + this + "} with its real MUIA");
+			Logger.warning("Unable to synchronyze MUIA copy \"" + this.getName() + "\" with its real MUIA");
 		}
 	}
 	
@@ -66,7 +66,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 		
 		alive = true;
 		
-		Logger.info("Copy MUIA {" + this + "} successfully registered in the copy MUIA observers list of the"
+		Logger.info("Copy MUIA \"" + this.getName() + "\" successfully registered in the copy MUIA observers list of the"
 				+ " original MUIA");
 	}
 	
@@ -97,7 +97,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 				synchronizeCopyToOriginalMUIA();
 			} catch (RemoteException | NotBoundException e) {
 				remoteOriginalMUIA = null;
-				Logger.warning("Unable to synchronyze MUIA copy {" + this + "} with your real MUIA");
+				Logger.warning("Unable to synchronyze MUIA copy \"" + this.getName() + "\" with your real MUIA");
 			}
 		}
 	}
@@ -116,7 +116,7 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 		Client client = sh.deserialize(serializedClient);
 		addClient(client);
 		
-		Logger.debug("Client " + client + " added in the MUIA {" + this + "}");
+		Logger.debug("Client " + client.getName() + " added in the MUIA \"" + this + "\".");
 	}
 
 	@Override

@@ -94,9 +94,8 @@ public class MUIALoader implements Runnable{
 				try {
 					channelId = (String) channel.get("channel_id");
 					channelDescription = (String) channel.get("channel_description");
-					channelMaxSubscribers = Integer.valueOf(
-							((Double) channel.get("channel_max_subscribers")).intValue());
-					channelMaxRetries = Integer.valueOf(((Double) channel.get("channel_max_retries")).intValue());
+					channelMaxSubscribers = ((Double) channel.get("channel_max_subscribers")).intValue();
+					channelMaxRetries = ((Double) channel.get("channel_max_retries")).intValue();
 					channelRetryInterval = Math.round((Double) channel.get("channel_retry_interval"));
 					channelTimeout = Math.round((Double) channel.get("channel_send_timeout"));
 					

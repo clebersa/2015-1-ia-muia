@@ -14,13 +14,13 @@ public class MUIAChecker implements Runnable {
 	@Override
 	public void run() {
 		Integer waitSeconds = Integer.valueOf(Long.toString((TIME_TO_WAIT_BEFORE_START / 1000)));
-		Logger.debug("Waiting " + waitSeconds + " seconds to start MUIA Checker of MUIA copy {" + checkable + "}");
+		Logger.debug("Waiting " + waitSeconds + " seconds to start MUIA Checker of MUIA copy \"" + checkable.getName() + "\"");
 		try {
 			Thread.sleep( TIME_TO_WAIT_BEFORE_START );
 		} catch (InterruptedException e) {
-			Logger.error("MUIA Checker of MUIA copy {" + checkable + "} interrupted");
+			Logger.error("MUIA Checker of MUIA copy \"" + checkable.getName() + "\" interrupted");
 		}
-		Logger.debug("MUIA Checker of MUIA copy {" + checkable + "} started!");
+		Logger.debug("MUIA Checker of MUIA copy \"" + checkable.getName() + "\" started!");
 		
 		while( true ) {
 			checkable.keepAlive();
@@ -29,7 +29,7 @@ public class MUIAChecker implements Runnable {
 			try {
 				Thread.sleep(periodicity);
 			} catch (InterruptedException e) {
-				Logger.error("MUIA Checker of MUIA copy {" + checkable + "} interrupted");
+				Logger.error("MUIA Checker of MUIA copy \"" + checkable.getName() + "\" interrupted");
 			}
 		}
 	}
