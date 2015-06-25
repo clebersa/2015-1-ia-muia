@@ -1,0 +1,93 @@
+body {
+	padding: 0;
+	font-family: arial,sans-serif,helvetica;
+	font-size: 13px;
+	background-color: #f0f4f9; 
+	color: #444;
+	min-height: 100%;
+}
+
+input, textarea {
+	font-family: arial,sans-serif,helvetica;
+}
+
+a {
+	text-decoration: none;
+	color: #444;
+}
+
+#wrapper {
+	margin: auto;
+	width: 745px;
+}
+
+.container {
+	width: 350px;
+	margin: 5px;
+	padding: 5px;
+	background-color: #f6faff;
+	border: 1px solid #C1C4C7;
+	margin-bottom: 10px;
+}
+
+.container span.title {
+	display: block;
+	font-size: 16px;
+	text-align: center;
+	width: 100%;
+	font-weight: bold;
+	color: #3568A7;
+	border-bottom: 1px solid #C1C4C7;
+	padding-bottom: 5px;
+	margin-bottom: 5px;
+}
+
+.tbl_chat, .tbl_config {
+	width: 100%;
+}
+
+.tbl_chat input, .tbl_config input {
+	width: 100%;
+	padding: 3px;
+}
+
+.tbl_chat input[type=text] {
+	width: -webkit-calc(100% - 9px);
+	width: -moz-calc(100% - 9px);
+	width: calc(100% - 9px);
+}
+
+.tbl_chat textarea, .tbl_config textarea {
+	width: -webkit-calc(100% - 6px);
+	width: -moz-calc(100% - 6px);
+	width: calc(100% - 6px);
+	height: 200px;
+}
+
+.tbl_config input[type=text], .tbl_config input[type=number] {
+	width: -webkit-calc(100% - 9px);
+	width: -moz-calc(100% - 9px);
+	width: calc(100% - 9px);
+}
+
+
+.tbl_config textarea {
+	height: 60px;
+}
+
+.float_left {
+	float: left;
+}
+
+.float_right {
+	float: right;
+}
+
+.float_adjustment:after {
+	content:".";
+	display:block;
+	clear:both;
+	visibility:hidden;
+	height:0;
+	overflow:hidden;
+}
