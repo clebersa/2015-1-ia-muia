@@ -381,6 +381,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	 * receive a channel update.
 	 */
 	private void updateObserverChannelAllData( OriginalMUIAObserver observer ) throws UnableToUpdateObserverException {
+		System.out.println(observer);
 		SerializableHandler<Channel> shChannel = new SerializableHandler<Channel>();
 		byte[] serializedChannel;
 		for( Channel channel : channels ) {
@@ -388,6 +389,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				observer.updateChannelAddition(serializedChannel);
 			} catch (RemoteException e) {
+				e.printStackTrace();
 				throw new UnableToUpdateObserverException();
 			}
 			
@@ -395,10 +397,12 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 				try{
 					observer.updateChannelSubscribe( channel.getId(), channelClient.getName() );
 				} catch(RemoteException e) {
+					e.printStackTrace();
 					throw new UnableToUpdateObserverException();
 				}
 			}
 		}
+		System.out.println("finalizou!!");
 	}
 	
 	@Override
@@ -453,7 +457,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	
 	@Override
 	public Boolean addOriginalMUIAObserver(OriginalMUIAObserver observer) {
-		Boolean addObsOperation = false;
+		Boolean addObsOperation = true;
 		if (!originalMUIAObservers.contains(observer)) {
 			Boolean updateObsOperation = true;
 			try {
@@ -467,7 +471,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 				addObsOperation = originalMUIAObservers.add(observer);
 			}
 		}
-
+		
 		return addObsOperation;
 	}
 

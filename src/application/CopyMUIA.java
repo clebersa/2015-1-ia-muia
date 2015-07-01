@@ -62,7 +62,11 @@ public class CopyMUIA extends MUIA implements CopyMUIAObserver {
 		remoteOriginalMUIA = (MUIAObservable) registry.lookup(name);
 		remoteOriginalMUIA.addCopyMUIAObserver(((CopyMUIAObserver) selfRemoteReference));
 		
-		Main.getSelf().registerKnownMuiaOriginalObserver(this);
+		try {
+			Main.getSelf().registerKnownMuiaOriginalObserver(this);
+		} catch( Exception e ) {
+			throw new RemoteException();
+		}
 		
 		alive = true;
 		

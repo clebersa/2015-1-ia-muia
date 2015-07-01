@@ -59,18 +59,21 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 			
 			MUIA destinationMUIA = Main.getSelf().getMUIAByClient(
 					messagingHeader.getDestinations()[0]);
+			
 			Socket socket = new Socket();
-			if (destinationMUIA == Main.getSelf()) {
+			if (destinationMUIA.getName().equals(Main.getSelf().getName())) {
 				socket.connect(new InetSocketAddress(
 						messagingHeader.getDestinations()[0].getAddress(),
 						messagingHeader.getDestinations()[0].getPort()),
 						(int) messagingHeader.getChannel().getTimeout());
 			} else {
 				socket.connect(new InetSocketAddress(
-						messagingHeader.getDestinations()[0].getAddress(),
-						messagingHeader.getDestinations()[0].getPort()),
+						destinationMUIA.getAddress(),
+						destinationMUIA.getPort()),
 						(int) messagingHeader.getChannel().getTimeout());
 			}
+			
+			System.out.println(socket.getInetAddress().toString() + " - " + socket.getPort());
 
 			socket.setSoTimeout((int) messagingHeader.getChannel().getTimeout());
 			
@@ -123,6 +126,7 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 				sent = true;
 			}
 		} catch (IOException | JsonSyntaxException ex) {
+			ex.printStackTrace();
 			Logger.error("Unable to stop ConnectionManager! Error: "
 					+ ex.getMessage());
 		} finally {
