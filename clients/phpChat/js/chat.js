@@ -30,6 +30,14 @@ $( document ).ready( function() {
 		changeUseChannel(channelId);
 	});
 	
+	$("input[name=btnSetClientAvailable]").click( function( e ) {
+		setClientIsAvailable(true);
+	});
+	
+	$("input[name=btnSetClientToUnavailable]").click( function( e ) {
+		setClientIsAvailable(false);
+	});
+	
 	$("input[name=btnCreateChannel]").click( function( e ) {
 		var maxSubscribers = $("input[name=inpMaxSubscribers]").val();
 		var maxRetries = $("input[name=inpMaxRetries]").val();
@@ -466,6 +474,52 @@ function getChatMessages() {
 					$('textarea[name=txtAChat]').scrollTop($('textarea[name=txtAChat]')[0].scrollHeight);
 				} catch(e) {}
 			});
+		}
+	});
+}
+
+function setClientIsAvailable(isAvailable) {
+	inputData = {
+		'action' : 'SET_CLIENT_AVAILABLE',
+		'isAvailable' : isAvailable
+	}
+	
+	$.ajax({
+		url: 'operation.php',
+		type: 'POST',
+		data: inputData,
+		datatype: 'json',
+		cache: false,
+		success: function(msg) {
+			try {
+				var status = msg['status'];
+			} catch( e ) {
+				log("Erro: Não foi possível contactar o servidor MUIA");
+				return;
+			}
+			
+			var btnSetAvailable = $("input[name=btnSetClientAvailable]");
+			var btnSetUnavailable = $("input[name=btnSetClientToUnavailable]");
+			
+			switch(status) {
+				case 50:
+					if(isAvailable === true) {
+						btnSetAvailable.prop("disabled", "true");
+						btnSetUnavailable.removeProp("disabled");
+						log("O cliente agora está apto a receber as mensagens enviadas");
+					} else {
+						btnSetUnavailable.prop("disabled", "true");
+						btnSetAvailable.removeProp("disabled");
+						log("O cliente não está mais apto a receber as mensagens enviadas");
+					}
+					break;
+				case 2:
+					btnSetUnavailable.prop("disabled", "true");
+					btnSetAvailable.removeProp("disabled");
+					log("Não foi possível setar o cliente para disponível ou indisponível" +
+						" pois este não existe ou o cliente não está registrado no MUIA");
+					break;
+			}
 		}
 	});
 }

@@ -77,6 +77,9 @@ public class MessagePacket implements JsonDeserializer<MessagePacket>,
 				messageHeader = new MessagingHeader();
 				needMessageData = true;
 				break;
+			case "messaging-availability":
+				messageHeader = new AvailabilityHeader();
+				break;
 			default:
 				throw new InvalidValueException("Invalid value for 'header-type'.");
 		}
