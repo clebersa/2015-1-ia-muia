@@ -16,6 +16,7 @@ import operation.Operation;
 import operation.OperationFactory;
 import packets.ChannelCreatingHeader;
 import packets.ConnectionHeader;
+import packets.GetAvailableChannelsHeader;
 import packets.MessageData;
 import packets.MessagePacket;
 import packets.MessagingHeader;
@@ -97,6 +98,8 @@ public class ConnectionHandler implements Runnable, ConnectionHandlerObservable 
 									new ChannelCreatingHeader())
 							.registerTypeAdapter(SubscribeHeader.class,
 									new SubscribeHeader())
+							.registerTypeAdapter(GetAvailableChannelsHeader.class,
+									new GetAvailableChannelsHeader())
 							.registerTypeAdapter(MessageData.class,
 									new MessageData())
 							.create();

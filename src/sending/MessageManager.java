@@ -71,14 +71,14 @@ public class MessageManager implements Runnable, MessageSenderObserver {
 			}
 		}
 
-		while (messageSenders.size() > 0) {
+		/*while (messageSenders.size() > 0) {
 			try {
 				Thread.sleep((long) 1000);
 			} catch (InterruptedException ex) {
 				Logger.warning("Unable to wait to stop Message Manager. Error: "
 						+ ex.getMessage());
 			}
-		}
+		}*/
 	}
 
 	@Override

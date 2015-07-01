@@ -1,5 +1,5 @@
 <?php
-	error_reporting(E_ALL);
+	error_reporting(0);
 	header('Content-Type: application/json');
 	
 	include_once("config.php");
@@ -13,7 +13,15 @@
 	
 	switch($action) {
 		case "REGISTER_CLIENT":
-			$result = registerClient(true);
+			if(isset($_POST['register'])) {
+				$register = $_POST['register'];
+			} else {
+				$register = true;
+			}
+			$result = registerClient($register);
+			break;
+		case "GET_AVAILABLE_CHANNELS":
+			$result = getAvailableChannels();
 			break;
 		case "CREATE_CHANNEL":
 			if(isset($_POST['description'])) {
@@ -49,7 +57,12 @@
 			} else {
 				$channelId = "default";
 			}
-			$result = subscribeClientIntoChannel(true, $channelId);
+			if(isset($_POST['register'])) {
+				$register = $_POST['register'];
+			} else {
+				$register = true;
+			}
+			$result = subscribeClientIntoChannel($register, $channelId);
 			break;
 		case "START_SERVER":
 			startChatServer();

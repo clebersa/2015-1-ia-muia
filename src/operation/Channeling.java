@@ -1,10 +1,22 @@
 package operation;
 
 import application.Main;
+
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import java.io.Writer;
+import java.lang.reflect.Type;
+
 import packets.ChannelCreatingHeader;
 import packets.ChannelingHeader;
+import packets.GetAvailableChannelsHeader;
 import packets.MessagePacket;
 import packets.SubscribeHeader;
 import sending.Channel;
@@ -48,13 +60,17 @@ class Channeling extends Operation {
 					resultMap.put("status", 31);
 				}
 			} else {
-				if (subscribeHeader.getChannel().subscribeClient(
+				if (subscribeHeader.getChannel().unsubscribeClient(
 						subscribeHeader.getClient())) {
 					resultMap.put("status", 30);
 				} else {
 					resultMap.put("status", 32);
 				}
 			}
+		} else if(header instanceof GetAvailableChannelsHeader) {
+			Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+			resultMap.put("channels", gson.toJsonTree(Main.getSelf().getChannels()));
+			resultMap.put("status", 0);
 		} else {
 			resultMap.put("status", 2);
 		}

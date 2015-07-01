@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.List;
 
 import common.Logger;
 import common.SerializableHandler;
@@ -211,6 +212,14 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 	}
 	
 	/**
+	 * Gets the list of channels registered in the original MUIA.
+	 * @return List containing the channels registered in the MUIA.
+	 */
+	public List<Channel> getChannels() {
+		return channels;
+	}
+	
+	/**
 	 * Adds (register) a channel in the original MUIA.
 	 * If a channel with the same id of the channel to be registered is already registered in
 	 * the original MUIA, the register will be canceled.
@@ -397,8 +406,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 				updateObserverClientAllData(observer);
 			} catch (UnableToUpdateObserverException e) {
 				updateObsOperation = false;
-				Logger.error( "Unable to send all clients and update the observer \""
-						+ ((MUIA)observer).getName() + "\"" );
+				Logger.error( "Unable to send all clients and update the observer" );
 			}
 			
 			if( updateObsOperation ) {
@@ -423,7 +431,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				observer.updateClientAddition(serializedClient);
 			} catch (RemoteException e) {
-				Logger.error( "Cannot update client addition in the observer \"" + ((MUIA)observer).getName() + "\"" );
+				Logger.error( "Cannot update client addition in the observer" );
 			}
 		}
 	}
@@ -434,7 +442,7 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 			try {
 				observer.updateClientRemoval(client.getName());
 			} catch (RemoteException e) {
-				Logger.error( "Cannot update client removal in the observer \"" + ((MUIA)observer).getName() + "\"" );
+				Logger.error( "Cannot update client removal in the observer" );
 			}
 		}
 	}

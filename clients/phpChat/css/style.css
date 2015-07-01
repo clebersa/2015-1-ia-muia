@@ -7,7 +7,7 @@ body {
 	min-height: 100%;
 }
 
-input, textarea {
+input, textarea, select {
 	font-family: arial,sans-serif,helvetica;
 }
 
@@ -19,6 +19,14 @@ a {
 #wrapper {
 	margin: auto;
 	width: 745px;
+}
+
+.log {
+	width: 723px !important;
+}
+
+.log textarea {
+	height: 100px !important;
 }
 
 .container {
@@ -57,11 +65,11 @@ a {
 	width: calc(100% - 9px);
 }
 
-.tbl_chat textarea, .tbl_config textarea {
+.tbl_chat textarea, .tbl_config textarea, .log textarea {
 	width: -webkit-calc(100% - 6px);
 	width: -moz-calc(100% - 6px);
 	width: calc(100% - 6px);
-	height: 200px;
+	height: 311px;
 }
 
 .tbl_config input[type=text], .tbl_config input[type=number] {
@@ -73,6 +81,11 @@ a {
 
 .tbl_config textarea {
 	height: 60px;
+}
+
+.tbl_config select, .tbl_chat select {
+	width: 100%;
+	padding: 3px;
 }
 
 .float_left {

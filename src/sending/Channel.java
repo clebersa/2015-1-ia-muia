@@ -3,6 +3,9 @@ package sending;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import application.Client;
 import packets.MessagePacket;
 import sending.interfaces.ChannelObservable;
@@ -17,14 +20,28 @@ import sending.interfaces.ChannelObserver;
  */
 public class Channel implements ChannelObservable, Serializable {
 	private static final long serialVersionUID = -3916512796973352410L;
+	@Expose
+	@SerializedName("id")
 	private final String id;
+	@Expose
+	@SerializedName("description")
 	private final String description;
+	@Expose
+	@SerializedName("max-subscribers")
 	private final int maxSubscribers;
+	@Expose
+	@SerializedName("max-retries")
 	private final int maxRetries;
+	@Expose
+	@SerializedName("retry-interval")
 	private final long retryInterval;
+	@Expose
+	@SerializedName("timeout")
 	private final long timeout;
-
+	
+	@Expose(serialize = false, deserialize = false)
 	private ArrayList<ChannelObserver> observers = new ArrayList<ChannelObserver>();
+	@Expose(serialize = false, deserialize = false)
 	private ArrayList<Client> subscribers = new ArrayList<Client>();
 
 	public Channel(String id, String description, int maxSubscribers,

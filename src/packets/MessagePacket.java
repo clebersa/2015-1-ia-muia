@@ -70,6 +70,9 @@ public class MessagePacket implements JsonDeserializer<MessagePacket>,
 			case "channel-creating":
 				messageHeader = new ChannelCreatingHeader();
 				break;
+			case "channel-get-available-channels":
+				messageHeader = new GetAvailableChannelsHeader();
+				break;
 			case "messaging":
 				messageHeader = new MessagingHeader();
 				needMessageData = true;

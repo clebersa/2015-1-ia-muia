@@ -79,6 +79,38 @@
 		return $response;
 	}
 	
+	function getAvailableChannels() {
+		require("config.php");
+		
+		$packet = array(
+			"connection-header" => array(
+				"app-type" => "client",
+				"app-name" => $config['client']['name']
+			),
+			"message-packet" => array(
+				"header-type" => "channel-get-available-channels",
+				"header-data" => array()
+			)
+		);
+		
+		$message = json_encode($packet);
+		$length = strlen($message);
+		
+		$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+		socket_connect($socket, $config['muia']['ip_address'], $config['muia']['port']);
+		socket_write($socket, $message, $length);
+		
+		$response = "";
+		while( socket_recv($socket, $buffer, 1024, 0 ) ) {
+			$response .= $buffer;
+		}
+		
+		socket_close($socket);
+		
+		$response = json_decode($response, true);
+		return $response;
+	}
+	
 	function registerClient($register = true) {
 		require("config.php");
 		

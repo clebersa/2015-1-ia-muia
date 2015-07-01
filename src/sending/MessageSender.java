@@ -119,7 +119,7 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 					HashMap.class);
 			result.put("status", ((Number) result.get("status")).intValue());
 			Logger.info("Sending operation result: " + result.get("status"));
-			if ((Integer) result.get("status") == 41) {
+			if ((Integer) result.get("status") == 0) {
 				sent = true;
 			}
 		} catch (IOException | JsonSyntaxException ex) {
