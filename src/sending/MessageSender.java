@@ -11,11 +11,9 @@ import common.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.HashMap;
 
 import packets.ChannelCreatingHeader;
@@ -60,6 +58,10 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 			MUIA destinationMUIA = Main.getSelf().getMUIAByClient(
 					messagingHeader.getDestinations()[0]);
 			
+			if(destinationMUIA == null) {
+				throw new IOException();
+			}
+			
 			Socket socket = new Socket();
 			if (destinationMUIA.getName().equals(Main.getSelf().getName())) {
 				socket.connect(new InetSocketAddress(
@@ -72,8 +74,6 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 						destinationMUIA.getPort()),
 						(int) messagingHeader.getChannel().getTimeout());
 			}
-			
-			System.out.println(socket.getInetAddress().toString() + " - " + socket.getPort());
 
 			socket.setSoTimeout((int) messagingHeader.getChannel().getTimeout());
 			
@@ -122,11 +122,10 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 					HashMap.class);
 			result.put("status", ((Number) result.get("status")).intValue());
 			Logger.info("Sending operation result: " + result.get("status"));
-			if ((Integer) result.get("status") == 0) {
+			if ((Integer) result.get("status") == 0 || (Integer) result.get("status") == 40) {
 				sent = true;
 			}
 		} catch (IOException | JsonSyntaxException ex) {
-			ex.printStackTrace();
 			Logger.error("Unable to stop ConnectionManager! Error: "
 					+ ex.getMessage());
 		} finally {
