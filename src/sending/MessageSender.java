@@ -69,6 +69,15 @@ public class MessageSender implements Runnable, MessageSenderObservable {
 						messagingHeader.getDestinations()[0].getPort()),
 						(int) messagingHeader.getChannel().getTimeout());
 			} else {
+				//Waits until the client is able to receive messages;
+				while(!messagingHeader.getDestinations()[0].isReadyToReceive()){
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException ex) {
+						System.out.println("Error waiting the client be ready "
+								+ "to receive message: " + ex.getMessage());
+					}
+				};
 				socket.connect(new InetSocketAddress(
 						destinationMUIA.getAddress(),
 						destinationMUIA.getPort()),

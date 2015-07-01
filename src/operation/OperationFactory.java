@@ -1,5 +1,6 @@
 package operation;
 
+import packets.AvailabilityHeader;
 import packets.ChannelingHeader;
 import packets.MessageHeader;
 import packets.MessagePacket;
@@ -19,6 +20,8 @@ public class OperationFactory {
 			return new Registration(messagePacket);
 		}else if(header instanceof ChannelingHeader){
 			return new Channeling(messagePacket);
+		}else if(header instanceof AvailabilityHeader){
+			return new Availability(messagePacket);
 		}else{
 			return null;
 		}
