@@ -341,7 +341,11 @@ public class OriginalMUIA extends MUIA implements OriginalMUIAObserver, ChannelO
 		}
 		
 		try {
-			knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver((OriginalMUIAObserver) selfRemoteReference);
+			Boolean operation = knownCopyMUIA.getRemoteOriginalMUIA().addOriginalMUIAObserver(
+					(OriginalMUIAObserver) selfRemoteReference);
+			if(operation != true) {
+				throw new RemoteException();
+			}
 		} catch (RemoteException | NullPointerException e) {
 			Logger.warning( "Failed to register the original MUIA like a original MUIA observer in the MUIA \""
 					+ ((MUIA)knownCopyMUIA).getName() + "\"" );
