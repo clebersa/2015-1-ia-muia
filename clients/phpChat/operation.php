@@ -12,6 +12,14 @@
 	}
 	
 	switch($action) {
+		case "SET_CLIENT_AVAILABLE":
+			if(isset($_POST['isAvailable'])) {
+				$isAvailable = $_POST['isAvailable'];
+			} else {
+				$isAvailable = true;
+			}
+			$result = setClientAvailable($isAvailable);
+			break;
 		case "REGISTER_CLIENT":
 			if(isset($_POST['register'])) {
 				$register = $_POST['register'];

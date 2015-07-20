@@ -63,6 +63,14 @@
 										<input type="button" name="btnUnregisterClient" value="Desregistrar do MUIA" disabled>
 									</td>
 								</tr>
+								<tr>
+									<td>
+										<input type="button" name="btnSetClientAvailable" value="Estou disponível">
+									</td>
+									<td>
+										<input type="button" name="btnSetClientToUnavailable" value="Não estou disponível" disabled>
+									</td>
+								</tr>
 							</table>
 						</div>
 					</div>

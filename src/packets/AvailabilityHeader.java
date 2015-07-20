@@ -9,18 +9,16 @@ import com.google.gson.JsonSerializationContext;
 import java.lang.reflect.Type;
 import receiving.InvalidValueException;
 import receiving.MissingElementException;
-import sending.Channel;
 
 /**
  *
  * @author Cleber Alcântara <cleber.93cd@gmail.com>
  */
 public class AvailabilityHeader extends MessageHeader {
-
 	private Client client;
 	private boolean available;
 
-	public AvailabilityHeader(Channel channel, boolean available) {
+	public AvailabilityHeader(Client client, boolean available) {
 		this.client = client;
 		this.available = available;
 	}
@@ -59,7 +57,7 @@ public class AvailabilityHeader extends MessageHeader {
 		}
 		
 		if (json.getAsJsonObject().get("available") != null) {
-			available = json.getAsJsonObject().get("destinations").getAsBoolean();
+			available = json.getAsJsonObject().get("available").getAsBoolean();
 		}else{
 			throw new MissingElementException("'available' not found!");
 		}
