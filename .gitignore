@@ -9,3 +9,4 @@ manifest.mf
 /dist/
 *~
 /target/
+/clients/phpChat/nbproject/private/
